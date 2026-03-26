@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Download, Users, TrendingUp, CheckCircle2, ChevronRight, LayoutDashboard, Search } from 'lucide-react';
+import { Download, Users, TrendingUp, CheckCircle2, Search } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -95,7 +95,7 @@ export default function AdminReportsPage() {
                </tbody>
             ) : (
               <tbody className="divide-y divide-slate-100 bg-white">
-                {filteredReports.map((r, i) => (
+                {filteredReports.map((r) => (
                   <tr key={r.userId} className="hover:bg-slate-50/80 transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">

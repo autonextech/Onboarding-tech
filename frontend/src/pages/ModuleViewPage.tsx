@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
-import { CheckCircle2, ChevronRight, PlayCircle, FileText, ArrowLeft, Loader2, Award } from 'lucide-react';
+import { CheckCircle2, PlayCircle, FileText, ArrowLeft, Loader2, Award } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
