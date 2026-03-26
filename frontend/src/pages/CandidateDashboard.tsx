@@ -5,9 +5,16 @@ import ModuleCard from '../components/ui/ModuleCard';
 import { TrendingUp, Users, Clock, Award } from 'lucide-react';
 
 export default function CandidateDashboard() {
-  const { userName, userId, overallProgress } = useStore();
+  const { userName, userId } = useStore();
   const [modules, setModules] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    overallProgress: 0,
+    completedModules: 0,
+    totalModules: 0,
+    avgQuizScore: 0,
+    mentorName: 'Unassigned'
+  });
   
   useEffect(() => {
     if (!userId) return;
@@ -16,41 +23,44 @@ export default function CandidateDashboard() {
     fetch(`${API_URL}/api/candidates/${userId}/dashboard`)
       .then(res => res.json())
       .then(data => {
-        // Adapt real DB modules to the visual ModuleCard format
         const realModules = data.modules.map((m: any) => ({
           id: m.id,
           title: m.title,
           description: m.description,
-          status: 'locked', // Without an active progress table yet, all are initially shown
-          progress: 0,
-          totalLessons: m.sections?.length || 0,
-          completedLessons: 0,
+          status: m.status,
+          progress: m.progress,
+          totalLessons: m.totalLessons,
+          completedLessons: m.completedLessons,
+          assessmentUrl: m.assessmentUrl,
+          quizScore: m.quizScore,
           icon: 'book-open',
           lessons: m.sections?.map((s: any) => ({
             id: s.id,
             title: s.title,
             type: s.videoUrl ? 'video' : (s.documents?.length > 0 ? 'document' : 'text'),
-            duration: `${s.videoDuration || 10} min`,
+            duration: `${s.videoDuration || '5'} min`,
             completed: false
           })) || []
         }));
         
-        // Unlock the very first module automatically for demo
-        if (realModules.length > 0) {
-          realModules[0].status = 'in_progress';
-        }
-        
         setModules(realModules);
+        setStats(data.stats || {
+          overallProgress: 0,
+          completedModules: 0,
+          totalModules: 0,
+          avgQuizScore: 0,
+          mentorName: 'Unassigned'
+        });
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [userId]);
 
-  const stats = [
-    { label: 'Modules Ready', value: modules.length, icon: Award, color: '#10B981', bg: '#ecfdf5' },
-    { label: 'Tasks Pending', value: '3', icon: Clock, color: '#F59E0B', bg: '#fffbeb' },
-    { label: 'Quiz Score Avg', value: '0%', icon: TrendingUp, color: '#1E40AF', bg: '#eff6ff' },
-    { label: 'Mentor Sessions', value: '0', icon: Users, color: '#0EA5E9', bg: '#f0f9ff' },
+  const statCards = [
+    { label: 'Modules Ready', value: stats.totalModules, icon: Award, color: '#10B981', bg: '#ecfdf5' },
+    { label: 'Completed', value: stats.completedModules, icon: Clock, color: '#F59E0B', bg: '#fffbeb' },
+    { label: 'Quiz Score Avg', value: `${stats.avgQuizScore}%`, icon: TrendingUp, color: '#7E22CE', bg: '#faf5ff' },
+    { label: 'Mentor', value: stats.mentorName, icon: Users, color: '#0EA5E9', bg: '#f0f9ff' },
   ];
 
   if (loading) return <div className="p-10 text-center text-slate-500">Loading your profile...</div>;
@@ -60,7 +70,7 @@ export default function CandidateDashboard() {
       {/* Welcome Banner */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
         className="glass-card mb-6 sm:mb-8 overflow-hidden relative">
-        <div className="absolute top-0 left-0 w-1.5 h-full" style={{ background: 'linear-gradient(to bottom, #1E40AF, #0EA5E9)' }} />
+        <div className="absolute top-0 left-0 w-1.5 h-full" style={{ background: 'linear-gradient(to bottom, #7E22CE, #A855F7)' }} />
         <div className="p-6 sm:p-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: '#0F172A', fontFamily: "'Instrument Sans', sans-serif" }}>
@@ -75,12 +85,12 @@ export default function CandidateDashboard() {
             <div className="relative flex items-center justify-center h-20 w-20 sm:h-24 sm:w-24">
               <svg className="w-full h-full" viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)' }}>
                 <circle stroke="#e2e8f0" strokeWidth="8" cx="50" cy="50" r="40" fill="transparent" />
-                <circle stroke="#1E40AF" strokeWidth="8" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
-                  strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * overallProgress) / 100}
+                <circle stroke="#7E22CE" strokeWidth="8" strokeLinecap="round" cx="50" cy="50" r="40" fill="transparent"
+                  strokeDasharray="251.2" strokeDashoffset={251.2 - (251.2 * stats.overallProgress) / 100}
                   style={{ transition: 'stroke-dashoffset 1s ease-out' }} />
               </svg>
               <div className="absolute flex flex-col items-center justify-center">
-                <span className="text-xl sm:text-2xl font-bold" style={{ color: '#0F172A' }}>{overallProgress}%</span>
+                <span className="text-xl sm:text-2xl font-bold" style={{ color: '#0F172A' }}>{stats.overallProgress}%</span>
               </div>
             </div>
             <span className="mt-2 text-xs sm:text-sm font-medium" style={{ color: '#64748B' }}>Overall Progress</span>
@@ -88,10 +98,10 @@ export default function CandidateDashboard() {
         </div>
       </motion.div>
 
-      {/* Stats Row */}
+      {/* Stats Row — All Real */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}
         className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        {stats.map((stat) => {
+        {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
             <div key={stat.label} className="glass-card p-4 sm:p-5 flex items-center gap-3 sm:gap-4">

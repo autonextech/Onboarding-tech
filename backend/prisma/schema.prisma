@@ -12,23 +12,30 @@ model User {
   name           String
   email          String   @unique
   passwordHash   String
-  role           String   // 'ADMIN' or 'CANDIDATE'
+  role           String   // 'ADMIN', 'CANDIDATE', or 'MENTOR'
   department     String?
+  isActive       Boolean  @default(true)
+  mentorId       String?
+  mentor         User?    @relation("MentorToCandidate", fields: [mentorId], references: [id])
+  mentees        User[]   @relation("MentorToCandidate")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   progress       CandidateProgress[]
   quizAttempts   QuizAttempt[]
+
+  @@index([mentorId])
 }
 
 model Module {
-  id          String    @id @default(uuid())
-  title       String
-  description String
-  status      String    // 'DRAFT' or 'PUBLISHED'
-  sections    Section[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id            String    @id @default(uuid())
+  title         String
+  description   String
+  status        String    // 'DRAFT' or 'PUBLISHED'
+  assessmentUrl String?   // External assessment portal link
+  sections      Section[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   candidateProgress CandidateProgress[]
 }

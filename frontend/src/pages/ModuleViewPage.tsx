@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store/useStore';
-import { CheckCircle2, PlayCircle, FileText, ArrowLeft, Loader2, Award } from 'lucide-react';
+import { CheckCircle2, PlayCircle, FileText, ArrowLeft, Loader2, Award, ExternalLink } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -108,6 +108,13 @@ export default function ModuleViewPage() {
               {moduleData.title}
             </h1>
             <p className="text-slate-600">{moduleData.description}</p>
+            {moduleData.assessmentUrl && (
+              <a href={moduleData.assessmentUrl} target="_blank" rel="noopener noreferrer"
+                className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg shadow-md"
+                style={{ background: 'linear-gradient(135deg, #7E22CE, #A855F7)' }}>
+                <ExternalLink className="h-4 w-4" /> Take Assessment
+              </a>
+            )}
           </div>
 
           <AnimatePresence mode="wait">
