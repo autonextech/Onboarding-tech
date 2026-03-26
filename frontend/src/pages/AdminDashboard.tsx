@@ -12,7 +12,8 @@ export default function AdminDashboard() {
   const [candidates, setCandidates] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/analytics')
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    fetch(`${API_URL}/api/analytics`)
       .then(res => res.json())
       .then(data => {
         setMetrics({

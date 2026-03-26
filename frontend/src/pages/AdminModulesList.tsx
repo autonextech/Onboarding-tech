@@ -17,10 +17,11 @@ export default function AdminModulesList() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
   const fetchModules = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/modules');
+      const res = await fetch(`${API_URL}/api/modules`);
       if (!res.ok) throw new Error('Failed to fetch modules');
       const data = await res.json();
       setModules(data);
@@ -39,7 +40,7 @@ export default function AdminModulesList() {
     if (!window.confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) return;
     
     try {
-      const res = await fetch(`http://localhost:3000/api/modules/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/api/modules/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete module');
       
       setModules(modules.filter(m => m.id !== id));

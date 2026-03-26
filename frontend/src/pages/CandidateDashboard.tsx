@@ -1,17 +1,59 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '../store/useStore';
 import ModuleCard from '../components/ui/ModuleCard';
 import { TrendingUp, Users, Clock, Award } from 'lucide-react';
 
-const stats = [
-  { label: 'Modules Completed', value: '1 / 4', icon: Award, color: '#10B981', bg: '#ecfdf5' },
-  { label: 'Tasks Pending', value: '3', icon: Clock, color: '#F59E0B', bg: '#fffbeb' },
-  { label: 'Quiz Score Avg', value: '87%', icon: TrendingUp, color: '#1E40AF', bg: '#eff6ff' },
-  { label: 'Mentor Sessions', value: '2', icon: Users, color: '#0EA5E9', bg: '#f0f9ff' },
-];
-
 export default function CandidateDashboard() {
-  const { userName, modules, overallProgress } = useStore();
+  const { userName, userId, overallProgress } = useStore();
+  const [modules, setModules] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    if (!userId) return;
+    
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    fetch(`${API_URL}/api/candidates/${userId}/dashboard`)
+      .then(res => res.json())
+      .then(data => {
+        // Adapt real DB modules to the visual ModuleCard format
+        const realModules = data.modules.map((m: any) => ({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          status: 'locked', // Without an active progress table yet, all are initially shown
+          progress: 0,
+          totalLessons: m.sections?.length || 0,
+          completedLessons: 0,
+          icon: 'book-open',
+          lessons: m.sections?.map((s: any) => ({
+            id: s.id,
+            title: s.title,
+            type: s.videoUrl ? 'video' : (s.documents?.length > 0 ? 'document' : 'text'),
+            duration: `${s.videoDuration || 10} min`,
+            completed: false
+          })) || []
+        }));
+        
+        // Unlock the very first module automatically for demo
+        if (realModules.length > 0) {
+          realModules[0].status = 'in_progress';
+        }
+        
+        setModules(realModules);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  const stats = [
+    { label: 'Modules Ready', value: modules.length, icon: Award, color: '#10B981', bg: '#ecfdf5' },
+    { label: 'Tasks Pending', value: '3', icon: Clock, color: '#F59E0B', bg: '#fffbeb' },
+    { label: 'Quiz Score Avg', value: '0%', icon: TrendingUp, color: '#1E40AF', bg: '#eff6ff' },
+    { label: 'Mentor Sessions', value: '0', icon: Users, color: '#0EA5E9', bg: '#f0f9ff' },
+  ];
+
+  if (loading) return <div className="p-10 text-center text-slate-500">Loading your profile...</div>;
 
   return (
     <div className="min-h-full px-4 py-6 sm:px-6 lg:px-10 max-w-7xl mx-auto">
@@ -68,13 +110,17 @@ export default function CandidateDashboard() {
       {/* Modules Grid */}
       <div>
         <h3 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6" style={{ color: '#0F172A', fontFamily: "'Instrument Sans', sans-serif" }}>Your Learning Path</h3>
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {modules.map((module, index) => (
-            <motion.div key={module.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + index * 0.1 }}>
-              <ModuleCard module={module} />
-            </motion.div>
-          ))}
-        </div>
+        {modules.length === 0 ? (
+          <div className="text-center py-10 bg-white border rounded-xl text-slate-500 italic">No modules published yet. Please ask your administrator.</div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {modules.map((module, index) => (
+              <motion.div key={module.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + index * 0.1 }}>
+                <ModuleCard module={module} />
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

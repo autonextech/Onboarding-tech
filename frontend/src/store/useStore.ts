@@ -99,6 +99,8 @@ interface AppState {
   userRole: 'candidate' | 'admin';
   userName: string;
   userEmail: string;
+  userId: string | null;
+  token: string | null;
   isLoggedIn: boolean;
   modules: Module[];
   tasks: Task[];
@@ -109,7 +111,7 @@ interface AppState {
   candidates: Candidate[];
   overallProgress: number;
 
-  login: (role: 'candidate' | 'admin', name: string, email: string) => void;
+  login: (token: string, user: { id: string; name: string; email: string; role: string }) => void;
   logout: () => void;
   setRole: (role: 'candidate' | 'admin') => void;
   completeLesson: (moduleId: string, lessonId: string) => void;
@@ -212,9 +214,11 @@ const mockCandidates: Candidate[] = [
 /* ──────────────────── Store ──────────────────── */
 export const useStore = create<AppState>((set) => ({
   userRole: 'candidate',
-  userName: 'Alex Sterling',
-  userEmail: 'alex.s@company.com',
-  isLoggedIn: false,
+  userName: '',
+  userEmail: '',
+  userId: null,
+  token: localStorage.getItem('token') || null,
+  isLoggedIn: !!localStorage.getItem('token'),
   modules: mockModules,
   tasks: mockTasks,
   mentors: mockMentors,
@@ -224,8 +228,21 @@ export const useStore = create<AppState>((set) => ({
   candidates: mockCandidates,
   overallProgress: 35,
 
-  login: (role, name, email) => set({ isLoggedIn: true, userRole: role, userName: name, userEmail: email }),
-  logout: () => set({ isLoggedIn: false }),
+  login: (token, user) => {
+    localStorage.setItem('token', token);
+    set({ 
+      isLoggedIn: true, 
+      token,
+      userId: user.id,
+      userRole: user.role.toLowerCase() as 'candidate' | 'admin', 
+      userName: user.name, 
+      userEmail: user.email 
+    });
+  },
+  logout: () => {
+    localStorage.removeItem('token');
+    set({ isLoggedIn: false, token: null, userId: null, userName: '', userEmail: '' });
+  },
   setRole: (role) => set({ userRole: role }),
 
   completeLesson: (moduleId, lessonId) => set((state) => {

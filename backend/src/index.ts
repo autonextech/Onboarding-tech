@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import modulesRouter from './routes/modules';
 import usersRouter from './routes/users';
 import analyticsRouter from './routes/analytics';
+import authRouter from './routes/auth';
+import candidatesRouter from './routes/candidates';
 
 dotenv.config();
 
@@ -13,9 +15,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+app.use('/api/auth', authRouter);
 app.use('/api/modules', modulesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/candidates', candidatesRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ 

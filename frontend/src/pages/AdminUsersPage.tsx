@@ -25,9 +25,11 @@ export default function AdminUsersPage() {
     department: ''
   });
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
   const fetchUsers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/users');
+      const res = await fetch(`${API_URL}/api/users`);
       const data = await res.json();
       setUsers(data);
     } catch (err) {
@@ -48,7 +50,7 @@ export default function AdminUsersPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch('http://localhost:3000/api/users', {
+      const res = await fetch(`${API_URL}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
