@@ -3,47 +3,43 @@ import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Trophy, Clock, Target, Download } from 'lucide-react';
 
-const mockWeeklyData = [
-  { name: 'Mon', completion: 4 },
-  { name: 'Tue', completion: 7 },
-  { name: 'Wed', completion: 5 },
-  { name: 'Thu', completion: 11 },
-  { name: 'Fri', completion: 8 },
-  { name: 'Sat', completion: 2 },
-  { name: 'Sun', completion: 3 },
-];
-
-const mockDistribution = [
-  { name: '0-25%', value: 12 },
-  { name: '26-50%', value: 8 },
-  { name: '51-75%', value: 15 },
-  { name: '76-100%', value: 25 },
-];
-
 const COLORS = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'];
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export default function AdminAnalyticsPage() {
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // In a real scenario, we'd fetch analytics data from /api/analytics
-    const timer = setTimeout(() => setLoading(false), 500);
-    return () => clearTimeout(timer);
+    fetch(`${API_URL}/api/analytics/full`)
+      .then(res => res.json())
+      .then(json => {
+         // Re-map icons dynamically
+         if (json.kpis) {
+           json.kpis[0].icon = Trophy;
+           json.kpis[0].color = '#F59E0B'; json.kpis[0].bg = '#fffbeb';
+           json.kpis[1].icon = Target;
+           json.kpis[1].color = '#10B981'; json.kpis[1].bg = '#ecfdf5';
+           json.kpis[2].icon = Clock;
+           json.kpis[2].color = '#3B82F6'; json.kpis[2].bg = '#eff6ff';
+         }
+         setData(json);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
-  const kpis = [
-    { label: 'Avg Quiz Score', value: '84%', icon: Trophy, color: '#F59E0B', bg: '#fffbeb', trend: '+2.4%' },
-    { label: 'Completion Rate', value: '68%', icon: Target, color: '#10B981', bg: '#ecfdf5', trend: '+5.1%' },
-    { label: 'Avg Time to Complete', value: '14 Days', icon: Clock, color: '#3B82F6', bg: '#eff6ff', trend: '-1.2 Days' },
-  ];
+  if (loading || !data) return <div className="p-10 text-center text-slate-500">Loading analytics...</div>;
+
+  const { kpis, weeklyData, distribution } = data;
 
   if (loading) return <div className="p-10 text-center text-slate-500">Loading analytics...</div>;
 
   return (
-    <div className="min-h-full px-4 py-6 sm:px-6 lg:px-10 max-w-7xl mx-auto">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Platform Analytics</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Outfit', sans-serif" }}>Platform Analytics</h2>
           <p className="text-sm text-slate-500">Track onboarding performance and engagement metrics.</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg"
@@ -53,10 +49,10 @@ export default function AdminAnalyticsPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {kpis.map((kpi, idx) => {
+        {kpis.map((kpi: any, idx: number) => {
           const Icon = kpi.icon;
           return (
-            <motion.div key={kpi.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="glass-card p-6">
+            <motion.div key={kpi.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container p-6">
               <div className="flex items-start justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl flex-shrink-0" style={{ background: kpi.bg, color: kpi.color }}>
                   <Icon className="h-6 w-6" />
@@ -75,11 +71,11 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="glass-card p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-6" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Weekly Completions</h3>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container p-6">
+          <h3 className="text-lg font-bold text-slate-900 mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>Weekly Completions</h3>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={mockWeeklyData}>
+              <LineChart data={weeklyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748b' }} dx={-10} />
@@ -90,13 +86,13 @@ export default function AdminAnalyticsPage() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="glass-card p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-6" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Progress Distribution</h3>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container p-6">
+          <h3 className="text-lg font-bold text-slate-900 mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>Progress Distribution</h3>
           <div className="h-72 flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={mockDistribution} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
-                  {mockDistribution.map((_entry, index) => (
+                <Pie data={distribution} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
+                  {distribution.map((_entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="transparent" />
                   ))}
                 </Pie>
@@ -105,7 +101,7 @@ export default function AdminAnalyticsPage() {
             </ResponsiveContainer>
           </div>
           <div className="flex justify-center gap-4 mt-2">
-            {mockDistribution.map((entry, index) => (
+            {distribution.map((entry: any, index: number) => (
               <div key={entry.name} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
                 <span className="text-xs font-semibold text-slate-600">{entry.name}</span>

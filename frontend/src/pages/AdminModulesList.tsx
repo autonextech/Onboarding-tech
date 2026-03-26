@@ -56,10 +56,10 @@ export default function AdminModulesList() {
   );
 
   return (
-    <div className="min-h-full px-4 py-6 sm:px-6 lg:px-10 max-w-7xl mx-auto">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Module Management</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Outfit', sans-serif" }}>Module Management</h2>
           <p className="text-sm text-slate-500">Create and oversee onboarding lesson paths.</p>
         </div>
         <button onClick={() => navigate('/admin/modules/new')} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg shadow-md"
@@ -68,7 +68,7 @@ export default function AdminModulesList() {
         </button>
       </motion.div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card mb-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container mb-6">
         <div className="p-4 flex flex-col sm:flex-row gap-4 border-b border-slate-100">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -120,7 +120,7 @@ export default function AdminModulesList() {
                       {m.sections?.length || 0} Sections
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => navigate(`/admin/modules/new?edit=${m.id}`)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
+                      <button onClick={() => navigate(`/admin/modules/new?edit=${m.id}`)} className="p-1.5 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-md transition-colors">
                         <Edit className="h-4 w-4" />
                       </button>
                       <button onClick={() => handleDelete(m.id, m.title)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">

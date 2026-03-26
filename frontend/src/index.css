@@ -1,54 +1,83 @@
 @import "tailwindcss";
 
 @theme {
-  /* Navy Blue & Sky Blue Palette */
-  --color-royal: #1E40AF;
-  --color-navy: #1E3A8A;
-  --color-sky: #0EA5E9;
-  --color-bright: #3B82F6;
-  --color-bg: #F1F5F9;
-  --color-card: #FFFFFF;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #64748B;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-error: #EF4444;
+  --color-on-surface: #171c1f;
+  --color-on-primary: #ffffff;
+  --color-on-primary-fixed: #001453;
+  --color-on-secondary-fixed: #00164e;
+  --color-inverse-on-surface: #edf1f5;
+  --color-on-error-container: #93000a;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-secondary-container: #1d3989;
+  --color-on-secondary-fixed-variant: #264191;
+  --color-on-surface-variant: #444653;
+  --color-on-tertiary-fixed-variant: #004c6e;
+  --color-surface-variant: #dfe3e7;
+  --color-tertiary-container: #005074;
+  --color-tertiary: #003853;
+  --color-tertiary-fixed-dim: #89ceff;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #68c4ff;
+  --color-inverse-primary: #b8c4ff;
+  --color-primary-fixed: #dde1ff;
+  --color-surface-bright: #f6fafe;
+  --color-on-primary-fixed-variant: #173bab;
+  --color-secondary: #4059aa;
+  --color-outline-variant: #c4c5d5;
+  --color-secondary-fixed-dim: #b6c4ff;
+  --color-on-primary-container: #a8b8ff;
+  --color-surface-container-low: #f0f4f8;
+  --color-primary-fixed-dim: #b8c4ff;
+  --color-secondary-fixed: #dce1ff;
+  --color-primary: #00288e;
+  --color-surface-container-highest: #dfe3e7;
+  --color-inverse-surface: #2c3134;
+  --color-tertiary-fixed: #c9e6ff;
+  --color-on-tertiary-fixed: #001e2f;
+  --color-primary-container: #1e40af;
+  --color-error-container: #ffdad6;
+  --color-on-background: #171c1f;
+  --color-on-secondary: #ffffff;
+  --color-surface-container: #eaeef2;
+  --color-secondary-container: #8fa7fe;
+  --color-outline: #757684;
+  --color-surface-container-high: #e4e9ed;
+  --color-surface: #f6fafe;
+  --color-surface-dim: #d6dade;
+  --color-error: #ba1a1a;
+  --color-surface-tint: #3755c3;
+  --color-on-error: #ffffff;
+  --color-background: #f6fafe;
 
-  --font-display: 'Instrument Sans', system-ui, sans-serif;
-  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-headline: "Instrument Sans", system-ui, sans-serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+  --font-label: "Hanken Grotesk", system-ui, sans-serif;
+  --font-display: "Instrument Sans", system-ui, sans-serif;
+
+  --radius-DEFAULT: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+  --radius-full: 0.75rem;
 }
 
 body {
-  font-family: 'Hanken Grotesk', system-ui, sans-serif;
-  background: #F1F5F9;
-  color: #0F172A;
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Instrument Sans', system-ui, sans-serif;
+h1, h2, h3, h4, h5, h6, .headline-font {
+  font-family: var(--font-headline);
 }
 
-/* Glassmorphism card */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
 .glass-card {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 4px 24px rgba(30, 58, 138, 0.06), 0 1px 3px rgba(30, 58, 138, 0.04);
-  border-radius: 1rem;
-  transition: all 0.3s ease;
-}
-
-.glass-card:hover {
-  box-shadow: 0 8px 32px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(30, 58, 138, 0.06);
-  transform: translateY(-2px);
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, #1E40AF, #0EA5E9);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }

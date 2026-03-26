@@ -15,7 +15,7 @@ async function getReportsData() {
       }
     }),
     prisma.module.findMany({
-      where: { status: 'PUBLISHED' },
+      where: { status: { in: ['published', 'PUBLISHED', 'Published'] } },
       include: { sections: { include: { questions: true } } }
     })
   ]);

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Plus, Mail, Trash2, Power, Upload, Download } from 'lucide-react';
+import { Search, Plus, Mail, Trash2, Power, Upload, Download, Users } from 'lucide-react';
+import TeamManagerModal from '../components/TeamManagerModal';
 
 interface UserData {
   id: string;
@@ -26,6 +27,7 @@ export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'ALL' | 'CANDIDATE' | 'MENTOR'>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [managingTeamFor, setManagingTeamFor] = useState<{ id: string, name: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -148,14 +150,14 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="min-h-full px-4 py-6 sm:px-6 lg:px-10 max-w-7xl mx-auto">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>User Management</h2>
+          <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Outfit', sans-serif" }}>User Management</h2>
           <p className="text-sm text-slate-500">Manage candidates and mentors.</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <a href={`${API_URL}/api/users/sample-excel`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors">
+          <a href={`${API_URL}/api/users/sample-excel`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
             <Download className="h-3.5 w-3.5" /> Sample Excel
           </a>
           <label className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold text-green-700 bg-green-50 hover:bg-green-100 transition-colors cursor-pointer">
@@ -163,7 +165,7 @@ export default function AdminUsersPage() {
             <input type="file" accept=".xlsx,.xls" onChange={handleBulkImport} ref={fileInputRef} className="hidden" />
           </label>
           <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg shadow-md"
-            style={{ background: 'linear-gradient(135deg, #7E22CE, #A855F7)' }}>
+            style={{ background: '#1d3989' }}>
             <Plus className="h-4 w-4" /> Add User
           </button>
         </div>
@@ -190,13 +192,13 @@ export default function AdminUsersPage() {
       <div className="flex gap-2 mb-4">
         {(['ALL', 'CANDIDATE', 'MENTOR'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === tab ? 'bg-purple-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeTab === tab ? 'bg-primary text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}>
             {tab === 'ALL' ? `All (${users.length})` : tab === 'CANDIDATE' ? `Candidates (${candidateCount})` : `Mentors (${mentorCount})`}
           </button>
         ))}
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card mb-6">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container mb-6">
         <div className="p-4 border-b border-slate-100">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -224,7 +226,7 @@ export default function AdminUsersPage() {
                   <td className="py-4 px-6">
                     <div className="flex items-center gap-3">
                       <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                        style={{ background: u.role === 'MENTOR' ? 'linear-gradient(135deg, #0EA5E9, #06B6D4)' : 'linear-gradient(135deg, #7E22CE, #A855F7)' }}>
+                        style={{ background: u.role === 'MENTOR' ? 'linear-gradient(135deg, #0EA5E9, #06B6D4)' : '#1d3989' }}>
                         {u.name.split(' ').map((n: string) => n[0]).join('')}
                       </div>
                       <div>
@@ -234,7 +236,7 @@ export default function AdminUsersPage() {
                     </div>
                   </td>
                   <td className="py-4 px-6">
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${u.role === 'MENTOR' ? 'bg-cyan-50 text-cyan-700' : u.role === 'ADMIN' ? 'bg-red-50 text-red-700' : 'bg-purple-50 text-purple-700'}`}>
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${u.role === 'MENTOR' ? 'bg-cyan-50 text-cyan-700' : u.role === 'ADMIN' ? 'bg-red-50 text-red-700' : 'bg-primary/5 text-primary'}`}>
                       {u.role}
                     </span>
                   </td>
@@ -256,6 +258,12 @@ export default function AdminUsersPage() {
                   </td>
                   <td className="py-4 px-6 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {u.role === 'CANDIDATE' && (
+                        <button onClick={() => setManagingTeamFor({ id: u.id, name: u.name })} title="Manage Team"
+                          className="p-2 rounded-md transition-colors text-primary bg-purple-50 hover:bg-primary/10">
+                          <Users className="h-4 w-4" />
+                        </button>
+                      )}
                       {u.role !== 'ADMIN' && (
                         <button onClick={() => handleToggleActive(u.id)} title={u.isActive ? 'Deactivate' : 'Activate'}
                           className={`p-2 rounded-md transition-colors ${u.isActive ? 'text-amber-600 bg-amber-50 hover:bg-amber-100' : 'text-green-600 bg-green-50 hover:bg-green-100'}`}>
@@ -280,7 +288,7 @@ export default function AdminUsersPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between" style={{ background: 'linear-gradient(135deg, #7E22CE, #581C87)' }}>
+            <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between" style={{ background: '#1d3989' }}>
               <h3 className="text-lg font-bold text-white">Add New User</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-white/80 hover:text-white transition-colors text-xl">&times;</button>
             </div>
@@ -312,13 +320,22 @@ export default function AdminUsersPage() {
               </div>
               <div className="pt-4 flex justify-end gap-3">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">Cancel</button>
-                <button type="submit" disabled={isSubmitting} className="px-5 py-2 text-sm font-semibold text-white rounded-lg transition-colors disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #7E22CE, #A855F7)' }}>
+                <button type="submit" disabled={isSubmitting} className="px-5 py-2 text-sm font-semibold text-white rounded-lg transition-colors disabled:opacity-50" style={{ background: '#1d3989' }}>
                   {isSubmitting ? 'Saving...' : 'Create User'}
                 </button>
               </div>
             </form>
           </motion.div>
         </div>
+      )}
+
+      {/* Manage Team Modal */}
+      {managingTeamFor && (
+        <TeamManagerModal 
+          candidateId={managingTeamFor.id} 
+          candidateName={managingTeamFor.name} 
+          onClose={() => setManagingTeamFor(null)} 
+        />
       )}
     </div>
   );

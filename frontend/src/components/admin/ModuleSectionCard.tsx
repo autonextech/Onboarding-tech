@@ -162,7 +162,7 @@ export default function ModuleSectionCard({ index, section, onChange, onRemove }
             <div className="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-slate-50">
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-slate-900">{section.document.title}</span>
-                <a href={section.document.url} target="_blank" rel="noopener noreferrer" className="text-xs text-purple-600 hover:underline truncate max-w-[250px]">{section.document.url}</a>
+                <a href={section.document.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate max-w-[250px]">{section.document.url}</a>
                 <span className="text-xs text-slate-400 uppercase">{section.document.type}</span>
               </div>
               <button onClick={() => updateField('document', undefined)} className="text-sm text-red-500 hover:text-red-700 font-medium">Remove</button>
@@ -177,12 +177,12 @@ export default function ModuleSectionCard({ index, section, onChange, onRemove }
                 <select value={docType} onChange={e => setDocType(e.target.value)} className="px-3 py-1.5 border border-slate-300 rounded-md text-sm bg-white">
                   <option>PDF</option><option>DOCX</option><option>PPT</option><option>XLS</option><option>Link</option>
                 </select>
-                <button onClick={handleAddDocument} className="px-3 py-1.5 text-sm font-medium bg-purple-600 text-white rounded-md hover:bg-purple-700">Add</button>
+                <button onClick={handleAddDocument} className="px-3 py-1.5 text-sm font-medium bg-primary text-white rounded-md hover:bg-purple-700">Add</button>
                 <button onClick={() => setShowDocForm(false)} className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-700">Cancel</button>
               </div>
             </div>
           ) : (
-            <button onClick={() => setShowDocForm(true)} className="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1">
+            <button onClick={() => setShowDocForm(true)} className="text-sm text-primary hover:text-purple-800 font-medium flex items-center gap-1">
               + Add Document
             </button>
           )}
@@ -193,7 +193,7 @@ export default function ModuleSectionCard({ index, section, onChange, onRemove }
           <div className="flex items-center justify-between mb-3 border-t border-slate-100 pt-4">
             <h4 className="text-sm font-medium text-slate-900 font-semibold" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Quiz Questions</h4>
             <div className="flex items-center gap-2">
-              <label className="text-xs text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1 cursor-pointer">
+              <label className="text-xs text-primary hover:text-purple-800 font-medium flex items-center gap-1 cursor-pointer">
                 <Upload className="h-3.5 w-3.5" /> Import from Excel
                 <input type="file" accept=".xlsx,.xls" onChange={handleQuizFileImport} className="hidden" />
               </label>
@@ -235,8 +235,8 @@ export default function ModuleSectionCard({ index, section, onChange, onRemove }
             ))}
           </div>
           
-          <button onClick={addQuestion} className="mt-3 text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1 group">
-             <span className="flex items-center justify-center bg-purple-100 text-purple-600 rounded-full h-5 w-5 group-hover:bg-purple-200 transition-colors"><Plus className="h-3 w-3" /></span>
+          <button onClick={addQuestion} className="mt-3 text-sm text-primary hover:text-purple-800 font-medium flex items-center gap-1 group">
+             <span className="flex items-center justify-center bg-primary/10 text-primary rounded-full h-5 w-5 group-hover:bg-purple-200 transition-colors"><Plus className="h-3 w-3" /></span>
              Add Question
           </button>
         </div>

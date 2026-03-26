@@ -90,7 +90,7 @@ export default function AdminLoginUnified() {
           </div>
 
           <div className="mb-10 text-center lg:text-left">
-            <div className="inline-flex items-center justify-center p-3 sm:mx-0 sm:mt-0 bg-blue-50 rounded-xl mb-6">
+            <div className="inline-flex items-center justify-center p-3 sm:mx-0 sm:mt-0 bg-primary/5 rounded-xl mb-6">
                <Shield className="h-8 w-8 text-[#0D1B4C]" strokeWidth={1.5} />
             </div>
             <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Admin Login</h2>

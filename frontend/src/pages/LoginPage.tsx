@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store/useStore';
-import { ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -38,55 +37,144 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4"
-      style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1E40AF 100%)' }}>
-
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-10">
-          <img src="/logo.png" alt="Autonex" className="h-12 mx-auto brightness-0 invert mb-4" />
-          <p className="text-blue-300 text-sm">Employee Onboarding Platform</p>
-        </div>
-
-        {/* Card */}
-        <div className="rounded-2xl p-8" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255,255,255,0.1)' }}>
-          <h2 className="text-xl font-bold text-white mb-6" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Sign in to your account</h2>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            {error && <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">{error}</div>}
-
-            <div>
-              <label className="block text-sm font-medium text-blue-200 mb-1.5">Email Address</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                placeholder="you@company.com"
-                className="w-full px-4 py-3 rounded-lg text-white placeholder-blue-400/50 outline-none focus:ring-2 transition-all"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }} />
+    <div className="bg-surface font-body text-on-surface overflow-hidden min-h-screen">
+      <main className="flex min-h-screen w-full">
+        {/* Left Section: UNTOUCHED */}
+        <section className="hidden lg:flex lg:w-3/5 relative overflow-hidden bg-gradient-to-br from-white to-slate-100 items-center px-20">
+          <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-50/50 rounded-full blur-3xl opacity-50"></div>
+          <div className="absolute bottom-[-5%] right-[10%] w-[400px] h-[400px] bg-sky-100/30 rounded-full blur-3xl opacity-40"></div>
+          
+          <div className="relative z-10 w-full max-w-3xl">
+            <div className="mb-24">
+              <img src="/logo.png" alt="Autonex" className="h-10" />
+              <div className="h-px w-12 bg-secondary mt-4"></div>
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-blue-200 mb-1.5">Password</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-                placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-lg text-white placeholder-blue-400/50 outline-none focus:ring-2 transition-all"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }} />
+            
+            <h1 className="font-headline font-bold text-[5rem] leading-[1] tracking-tight text-primary mb-12">
+              Executive <br/>
+              <span className="text-secondary italic">Excellence</span> <br/>
+              Starts Here
+            </h1>
+            
+            <div className="flex items-start gap-12 mt-16">
+              <div className="flex flex-col gap-2">
+                <span className="font-label text-[10px] uppercase tracking-[0.2em] text-outline">Protocol v.4.0</span>
+                <p className="text-on-surface-variant max-w-xs leading-relaxed">
+                  A sanctuary for architectural intelligence. Designed for leaders who demand clarity, precision, and a boundless digital landscape.
+                </p>
+              </div>
+              
+              <div className="bg-white/70 backdrop-blur-[24px] shadow-[inset_0_1px_1px_rgba(255,255,255,0.4)] p-6 rounded-lg shadow-[0_20px_40px_-5px_rgba(30,58,138,0.06)] border-l-4 border-secondary translate-y-8">
+                <span className="material-symbols-outlined text-secondary block mb-4">architecture</span>
+                <div className="font-label text-xs font-bold text-primary tracking-wider">SYSTEM INTEGRITY</div>
+                <div className="text-[10px] text-slate-500 mt-1">OPERATIONAL 100%</div>
+              </div>
             </div>
+          </div>
+          
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-[500px] h-[700px] rounded-lg overflow-hidden shadow-[0_20px_40px_-5px_rgba(30,58,138,0.06)] opacity-80">
+            <img 
+              className="w-full h-full object-cover grayscale-[0.5] hover:grayscale-0 transition-all duration-700" 
+              alt="Modern glass skyscraper facade" 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5pqcANh7MfP_d_SjRuUs309e3IFdDg2hlew8LxdzGmH6rUqc7a01WK338migXQaDTxFocvEOfBxlvF-E0dskv5iXf5O3Wf3hCGZZMEte1YMbDC396ADHZ_Int21wDPsputbEZ6rMKTXcI0h5Sz-Yws88e7wh36k_PoOVP0kUPJClXNesNjyrKwtCEOnEevTcynoqc8KaEHZbpomIRYRxs9kTqXWywDpjkM5FWd9ih7arsXWFrMS9Q4CgYPoAYctQ4GAIXGkCDKdr2"
+            />
+          </div>
+        </section>
 
-            <div>
-              <label className="block text-sm font-medium text-blue-200 mb-1.5">Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                className="w-full px-4 py-3 rounded-lg text-white placeholder-blue-400/50 outline-none focus:ring-2 transition-all"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }} />
+        {/* Right Section: FIXED LOGIN BOX DESIGN */}
+        <section className="w-full lg:w-2/5 bg-surface-container-low flex flex-col items-center justify-center p-8 lg:p-12 relative">
+          <div className="lg:hidden absolute top-12 left-12">
+            <img src="/logo.png" alt="Autonex" className="h-8" />
+          </div>
+          
+          {/* Enhanced Login Card - Using your original variables but adding depth */}
+          <div className="w-full max-w-md bg-white p-10 lg:p-12 rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-outline-variant/20">
+            <div className="mb-12">
+              <h2 className="font-headline font-bold text-4xl text-primary tracking-tight">Portal Access</h2>
+              <p className="text-on-surface-variant font-medium text-sm mt-3">Secure Gateway for Executive Members</p>
             </div>
-
-            <button type="submit" disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-white font-semibold text-sm shadow-lg transition-all duration-200 hover:shadow-xl hover:brightness-110 cursor-pointer disabled:opacity-50"
-              style={{ background: 'linear-gradient(135deg, #1E40AF, #0EA5E9)' }}>
-              {loading ? 'Signing in...' : 'Sign In'} <ArrowRight className="h-4 w-4" />
-            </button>
-          </form>
-        </div>
-      </div>
+            
+            <form className="space-y-8" onSubmit={handleLogin}>
+              {error && (
+                <div className="p-4 bg-red-50 text-red-600 rounded-xl text-xs font-bold border border-red-100 mb-6 flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px]">error</span> {error}
+                </div>
+              )}
+              
+              {/* Email Input: Bold labels and defined focus states */}
+              <div className="relative group">
+                <label className="block font-label text-[11px] uppercase tracking-[0.2em] text-outline font-bold mb-2 group-focus-within:text-secondary transition-colors">
+                  Corporate Email
+                </label>
+                <input 
+                  className="w-full bg-white border-b-2 border-outline-variant/30 py-3 px-1 focus:ring-0 focus:border-secondary transition-all outline-none font-body text-on-surface placeholder:text-slate-300 text-lg" 
+                  placeholder="executive@autonex.ai" 
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              
+              {/* Password Input: Clear contrast */}
+              <div className="relative group">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="font-label text-[11px] uppercase tracking-[0.2em] text-outline font-bold group-focus-within:text-secondary transition-colors">
+                    Security Key
+                  </label>
+                  <a className="font-label text-[10px] uppercase tracking-widest text-outline hover:text-secondary transition-colors font-bold" href="#">Recover</a>
+                </div>
+                <input 
+                  className="w-full bg-white border-b-2 border-outline-variant/30 py-3 px-1 focus:ring-0 focus:border-secondary transition-all outline-none font-body text-on-surface placeholder:text-slate-300 text-lg" 
+                  placeholder="••••••••••••" 
+                  type="password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              
+              {/* CTA Actions */}
+              <div className="pt-6 space-y-6">
+                <button 
+                  className="w-full bg-primary text-white py-5 rounded-xl font-label font-bold tracking-[0.2em] text-[11px] uppercase hover:bg-secondary active:scale-[0.98] transition-all shadow-lg shadow-primary/10 cursor-pointer disabled:opacity-50" 
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? 'Authenticating...' : 'Establish Connection'}
+                </button>
+                
+                <div className="flex items-center justify-center">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input type="checkbox" className="w-4 h-4 rounded border-outline-variant text-secondary focus:ring-secondary" />
+                    <span className="text-on-surface-variant font-label text-[10px] uppercase tracking-widest font-bold">Maintain Session</span>
+                  </label>
+                </div>
+              </div>
+            </form>
+            
+            {/* Footer Context */}
+            <div className="mt-16 pt-8 border-t border-outline-variant/10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-secondary/5 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-secondary text-xl font-bold">lock</span>
+                </div>
+                <div>
+                  <p className="text-[10px] font-label font-bold text-primary tracking-widest uppercase">RSA-4096 Shield</p>
+                  <p className="text-[9px] text-outline uppercase tracking-tighter">System integrity active</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <footer className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full px-8 flex justify-between items-center max-w-md opacity-40">
+            <span className="font-label text-[9px] uppercase tracking-[0.2em] text-on-surface font-bold">© 2024 AUTONEX</span>
+            <div className="flex gap-6">
+              <a className="font-label text-[9px] uppercase tracking-[0.2em] text-on-surface hover:text-secondary transition-colors" href="#">Privacy</a>
+            </div>
+          </footer>
+        </section>
+      </main>
     </div>
   );
 }

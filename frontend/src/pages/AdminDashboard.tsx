@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { LayoutDashboard, Users, TrendingUp, CheckCircle2, Download, UserX } from 'lucide-react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
@@ -22,7 +20,6 @@ export default function AdminDashboard() {
 
   const loadDashboard = async () => {
     try {
-      // Fetch all users and all published modules/progress in parallel
       const [usersRes, analyticsRes] = await Promise.all([
         fetch(`${API_URL}/api/users`).then(r => r.json()),
         fetch(`${API_URL}/api/analytics/dashboard`).then(r => r.json())
@@ -32,7 +29,6 @@ export default function AdminDashboard() {
       const activeCandidates = allCandidates.filter((u: any) => u.isActive);
       const inactiveCandidates = allCandidates.filter((u: any) => !u.isActive);
 
-      // Fetch real progress for each active candidate
       const candidatesWithProgress = await Promise.all(
         allCandidates.map(async (c: any) => {
           try {
@@ -72,20 +68,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const stats = [
-    { label: 'Total Candidates', value: metrics.totalCandidates, icon: Users, color: '#7E22CE', bg: '#faf5ff' },
-    { label: 'Active Now', value: metrics.activeCandidates, icon: TrendingUp, color: '#0EA5E9', bg: '#f0f9ff' },
-    { label: 'Completed', value: metrics.completedCandidates, icon: CheckCircle2, color: '#10B981', bg: '#ecfdf5' },
-    { label: 'Avg Progress', value: `${metrics.avgProgress}%`, icon: LayoutDashboard, color: '#F59E0B', bg: '#fffbeb' },
-  ];
-
-  const statusColor = (status: string) => {
-    if (status === 'active') return { bg: '#ecfdf5', color: '#065f46' };
-    if (status === 'completed') return { bg: '#eff6ff', color: '#1E40AF' };
-    if (status === 'inactive') return { bg: '#fef2f2', color: '#991b1b' };
-    return { bg: '#fef3c7', color: '#92400e' };
-  };
-
   const handleExport = async () => {
     try {
       const response = await fetch(`${API_URL}/api/reports/export`);
@@ -101,110 +83,129 @@ export default function AdminDashboard() {
     }
   };
 
-  if (loading) return <div className="p-10 text-center text-slate-500">Loading dashboard...</div>;
+  if (loading) return <div className="p-10 text-center text-slate-500 font-body">Loading dashboard...</div>;
 
   return (
-    <div className="min-h-full px-4 py-6 sm:px-6 lg:px-10 max-w-7xl mx-auto">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl text-white" style={{ background: 'linear-gradient(135deg, #7E22CE, #581C87)' }}>
-              <LayoutDashboard className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-extrabold" style={{ color: '#0F172A', fontFamily: "'Instrument Sans', sans-serif" }}>Admin Dashboard</h2>
-              <p className="text-sm" style={{ color: '#64748B' }}>Real-time onboarding analytics</p>
-            </div>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+          <div>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-primary/60 font-body">Organization Overview</span>
+            <h1 className="text-4xl font-extrabold tracking-tight headline-font text-primary mt-1">Analytics Intelligence</h1>
           </div>
-          <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold cursor-pointer transition-shadow hover:shadow-lg w-full sm:w-auto justify-center"
-            style={{ background: 'linear-gradient(135deg, #7E22CE, #A855F7)' }}>
-            <Download className="h-4 w-4" /> Export CSV
-          </button>
+          <div className="flex gap-3">
+            <button onClick={handleExport} className="px-5 py-2.5 rounded-md bg-white text-primary font-bold text-sm shadow-sm hover:shadow-md transition-all flex items-center gap-2 border border-outline-variant/20 cursor-pointer font-body">
+              <span className="material-symbols-outlined text-sm">download</span> Export Report
+            </button>
+          </div>
         </div>
-      </motion.div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        {stats.map((stat, idx) => {
-          const Icon = stat.icon;
-          return (
-            <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.08 }}>
-              <div className="glass-card p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
-                <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl flex-shrink-0" style={{ background: stat.bg, color: stat.color }}>
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-lg sm:text-2xl font-bold" style={{ color: '#0F172A' }}>{stat.value}</p>
-                  <p className="text-xs font-medium truncate" style={{ color: '#64748B' }}>{stat.label}</p>
-                </div>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-        <div className="glass-card overflow-hidden">
-          <div className="p-4 sm:p-6 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-lg font-bold" style={{ color: '#0F172A', fontFamily: "'Instrument Sans', sans-serif" }}>All Candidates</h3>
-            {metrics.inactiveCandidates > 0 && (
-              <span className="text-xs font-semibold px-3 py-1 rounded-full bg-red-50 text-red-600 flex items-center gap-1">
-                <UserX className="h-3 w-3" /> {metrics.inactiveCandidates} Inactive
-              </span>
-            )}
+        {/* Bento Grid Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-surface-container-lowest p-8 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] relative overflow-hidden group transition-all hover:translate-y-[-4px]">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full transition-all group-hover:scale-110"></div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest font-body">Total Candidates</span>
+            <div className="mt-4 flex items-end gap-2">
+              <span className="text-5xl font-bold headline-font text-primary">{metrics.totalCandidates}</span>
+              <span className="text-lg font-medium text-slate-500 mb-1 font-body">Users</span>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-emerald-600 text-xs font-bold font-body">
+              <span className="material-symbols-outlined text-xs">check_circle</span> {metrics.activeCandidates} Active
+            </div>
           </div>
+          <div className="bg-surface-container-lowest p-8 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] relative overflow-hidden group transition-all hover:translate-y-[-4px]">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-tertiary-fixed/20 rounded-bl-full transition-all group-hover:scale-110"></div>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest font-body">Global Progress</span>
+            <div className="mt-4 flex items-end gap-2">
+              <span className="text-5xl font-bold headline-font text-primary">{metrics.avgProgress}</span>
+              <span className="text-lg font-medium text-slate-500 mb-1 font-body">%</span>
+            </div>
+            <div className="mt-4 flex items-center gap-1 text-emerald-600 text-xs font-bold font-body">
+              <span className="material-symbols-outlined text-xs">trending_up</span> Cohort Average
+            </div>
+          </div>
+          <div className="bg-primary p-8 rounded-xl shadow-xl relative overflow-hidden group transition-all hover:translate-y-[-4px] text-white flex flex-col justify-between">
+            <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-white/5 rounded-full transition-all group-hover:scale-110"></div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-60 font-body">System Health</span>
+              <h3 className="text-xl font-bold headline-font mt-2">Executive Alignment</h3>
+            </div>
+            <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-bold font-body">Target Achievement</span>
+                <span className="text-xs font-bold font-body">94%</span>
+              </div>
+              <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                <div className="bg-tertiary-fixed-dim h-full w-[94%]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Data Table Area */}
+        <div className="bg-surface-container-lowest rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] overflow-hidden">
+          <div className="p-8 border-b border-surface-container flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <h3 className="text-lg font-bold headline-font text-primary">Recent Candidate Activity</h3>
+            <div className="flex gap-2 w-full md:w-auto">
+              <div className="relative flex-1 md:flex-none">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+                <input className="bg-surface-container pl-10 pr-4 py-2 rounded-md border-none focus:ring-2 focus:ring-primary text-sm w-full font-body" placeholder="Search executives..." type="text"/>
+              </div>
+              <button className="p-2 bg-surface-container rounded-md hover:bg-surface-container-high transition-colors cursor-pointer">
+                <span className="material-symbols-outlined text-slate-500">filter_list</span>
+              </button>
+            </div>
+          </div>
+          
           <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[600px]">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Candidate</th>
-                  <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider hidden sm:table-cell" style={{ color: '#64748B' }}>Department</th>
-                  <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider hidden md:table-cell" style={{ color: '#64748B' }}>Mentor</th>
-                  <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Progress</th>
-                  <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider" style={{ color: '#64748B' }}>Status</th>
+                <tr className="bg-surface-container-low text-slate-500 uppercase text-[10px] font-bold tracking-widest font-body">
+                  <th className="px-8 py-4">Executive Name</th>
+                  <th className="px-8 py-4">Department</th>
+                  <th className="px-8 py-4">Progress Target</th>
+                  <th className="px-8 py-4">Current Status</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-surface-container">
                 {candidates.length === 0 ? (
-                  <tr><td colSpan={5} className="py-8 text-center text-slate-500 italic">No candidates yet.</td></tr>
-                ) : candidates.map(c => {
-                  const sColor = statusColor(c.status);
-                  return (
-                    <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                      <td className="py-3 sm:py-4 px-4 sm:px-6">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                            style={{ background: c.isActive ? 'linear-gradient(135deg, #7E22CE, #A855F7)' : '#94a3b8' }}>
-                            {c.name.split(' ').map((n: string) => n[0]).join('')}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold truncate" style={{ color: c.isActive ? '#0F172A' : '#94a3b8' }}>{c.name}</p>
-                            <p className="text-xs truncate" style={{ color: '#94a3b8' }}>{c.email}</p>
-                          </div>
+                  <tr><td colSpan={5} className="py-8 text-center text-slate-500 italic font-body">No candidates active in this cohort.</td></tr>
+                ) : candidates.map((c: any) => (
+                  <tr key={c.id} className="hover:bg-surface-container-low transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
+                          {c.name.substring(0, 2).toUpperCase()}
                         </div>
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 hidden sm:table-cell" style={{ color: '#64748B' }}>{c.department || 'N/A'}</td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6 hidden md:table-cell" style={{ color: '#64748B' }}>{c.mentorName}</td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6">
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 sm:w-20 h-1.5 rounded-full overflow-hidden" style={{ background: '#e2e8f0' }}>
-                            <div className="h-full rounded-full" style={{ width: `${c.progress}%`, background: c.progress === 100 ? '#10B981' : '#7E22CE' }} />
-                          </div>
-                          <span className="text-xs font-semibold" style={{ color: '#64748B' }}>{c.progress}%</span>
+                        <div>
+                          <p className="font-bold text-sm text-primary font-body">{c.name}</p>
+                          <p className="text-[10px] text-slate-400 font-body">{c.email}</p>
                         </div>
-                      </td>
-                      <td className="py-3 sm:py-4 px-4 sm:px-6">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize" style={{ background: sColor.bg, color: sColor.color }}>
-                          {c.status}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-sm text-slate-600 font-medium font-body">{c.department || 'Executive Track'}</td>
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-1.5 rounded-full overflow-hidden bg-surface-container">
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${c.progress}%` }}></div>
+                        </div>
+                        <span className="text-xs font-bold text-slate-600 font-body">{c.progress}%</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5">
+                      {c.status === 'completed' ? (
+                        <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-full font-body">Certified</span>
+                      ) : c.status === 'active' ? (
+                        <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-full font-body">On Track</span>
+                      ) : (
+                        <span className="px-3 py-1 bg-amber-100 text-amber-700 text-[10px] font-bold uppercase tracking-wider rounded-full font-body">At Risk</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
-      </motion.div>
     </div>
   );
 }

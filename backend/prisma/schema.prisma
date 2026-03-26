@@ -109,3 +109,14 @@ model QuizAttempt {
   @@index([userId])
   @@index([sectionId])
 }
+
+model TeamMember {
+  id          String   @id @default(uuid())
+  name        String
+  role        String
+  department  String
+  email       String?
+  linkedin    String?
+  slack       String?
+  createdAt   DateTime @default(now())
+}

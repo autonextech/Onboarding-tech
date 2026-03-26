@@ -131,7 +131,7 @@ export default function AdminModulesBuilder() {
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
+            <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {editId ? 'Edit Module' : 'Create Module'}
             </h2>
             <p className="text-sm text-slate-500">
@@ -139,7 +139,7 @@ export default function AdminModulesBuilder() {
             </p>
           </div>
           <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg shadow-md disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #7E22CE, #A855F7)' }}>
+            style={{ background: '#1d3989' }}>
             <Save className="h-4 w-4" /> {isSaving ? 'Saving...' : (editId ? 'Update Module' : 'Save Module')}
           </button>
         </div>
@@ -147,7 +147,7 @@ export default function AdminModulesBuilder() {
 
       <div className="space-y-6">
         {/* Module Meta */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-6 border-t-4" style={{ borderTopColor: '#7E22CE' }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container p-6 border-t-4" style={{ borderTopColor: '#1d3989' }}>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-slate-700 mb-1">Module Title</label>
@@ -177,7 +177,7 @@ export default function AdminModulesBuilder() {
               <label className="block text-sm font-bold text-slate-700 mb-2">Status</label>
               <div className="flex bg-slate-100 p-1 rounded-lg w-fit">
                 <button type="button" onClick={() => setStatus('published')}
-                  className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${status === 'published' ? 'bg-white text-purple-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                  className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${status === 'published' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
                   Published
                 </button>
                 <button type="button" onClick={() => setStatus('draft')}
@@ -192,7 +192,7 @@ export default function AdminModulesBuilder() {
         {/* Sections Header */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="flex items-center justify-between border-b border-slate-200 pb-2">
           <div className="flex items-center gap-3">
-            <h3 className="text-lg font-bold text-slate-900" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Sections</h3>
+            <h3 className="text-lg font-bold text-slate-900" style={{ fontFamily: "'Outfit', sans-serif" }}>Sections</h3>
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
               {sections.length} section(s)
             </span>
@@ -219,7 +219,7 @@ export default function AdminModulesBuilder() {
         </div>
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="pt-2">
-          <button onClick={addSection} className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-semibold hover:border-purple-400 hover:bg-purple-50 hover:text-purple-600 transition-all cursor-pointer">
+          <button onClick={addSection} className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-300 rounded-xl text-slate-500 font-semibold hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all cursor-pointer">
             <Plus className="h-5 w-5" /> Add Section
           </button>
         </motion.div>

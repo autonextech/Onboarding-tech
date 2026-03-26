@@ -45,7 +45,7 @@ export default function LoginUnified() {
       <div className="absolute top-0 left-0 w-full h-1.5 z-50 bg-gradient-to-r from-[#7E22CE] to-[#A855F7]" />
 
       {/* Brand Panel (Left) */}
-      <div className="auth-brand-panel text-white p-12" style={{ background: '#7E22CE' }}>
+      <div className="auth-brand-panel text-white p-12" style={{ background: '#1d3989' }}>
         <div className="absolute inset-0 z-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at top right, #A855F7, transparent 60%)' }} />
         
         <div className="relative z-10 flex flex-col h-full justify-between">
@@ -81,7 +81,7 @@ export default function LoginUnified() {
           </div>
 
           <div className="mb-8">
-            <div className="inline-flex items-center justify-center p-3 sm:mx-0 sm:mt-0 bg-purple-50 rounded-xl mb-6">
+            <div className="inline-flex items-center justify-center p-3 sm:mx-0 sm:mt-0 bg-primary/5 rounded-xl mb-6">
                <LogIn className="h-8 w-8 text-[#7E22CE]" strokeWidth={1.5} />
             </div>
             <h2 className="text-3xl font-display font-bold text-slate-900 mb-2">Sign In</h2>
@@ -107,7 +107,7 @@ export default function LoginUnified() {
 
             <button type="submit" disabled={loading}
               className="mt-6 w-full flex items-center justify-center gap-2 py-3 rounded-lg text-white font-bold text-base shadow-lg shadow-purple-500/30 transition-all hover:shadow-purple-500/50 hover:-translate-y-0.5"
-              style={{ backgroundColor: '#7E22CE' }}>
+              style={{ backgroundColor: '#1d3989' }}>
               {loading ? 'Processing...' : 'Sign In'} <ArrowRight className="h-4 w-4" />
             </button>
           </form>

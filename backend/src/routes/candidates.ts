@@ -11,7 +11,7 @@ router.get('/:id/dashboard', async (req, res) => {
     
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { mentor: { select: { id: true, name: true, email: true } } }
+      include: { mentor: { select: { id: true, name: true, email: true } } } as any
     });
     
     if (!user) {
@@ -29,11 +29,11 @@ router.get('/:id/dashboard', async (req, res) => {
           }
         }
       }),
-      (prisma.candidateProgress as any).findMany({
+      (prisma as any).candidateProgress.findMany({
         where: { userId },
         select: { sectionId: true, moduleId: true }
       }),
-      (prisma.quizAttempt as any).findMany({
+      (prisma as any).quizAttempt.findMany({
         where: { userId },
         select: { questionId: true, isCorrect: true }
       })
@@ -112,5 +112,4 @@ router.get('/:id/dashboard', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch candidate dashboard' });
   }
 });
-
 export default router;
