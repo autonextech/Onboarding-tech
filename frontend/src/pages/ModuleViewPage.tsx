@@ -48,10 +48,21 @@ export default function ModuleViewPage() {
   // Helper to convert Google Drive /view -> /preview
   const getEmbeddedDriveUrl = (url: string) => {
     if (!url) return '';
-    if (url.includes('drive.google.com') && url.includes('/view')) {
-      return url.replace('/view', '/preview');
+    // Extract file ID from various Google Drive URL formats
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) {
+      return `https://drive.google.com/file/d/${match[1]}/preview`;
     }
+    // Already a preview URL or non-Drive URL
+    if (url.includes('/preview')) return url;
+    if (url.includes('/view')) return url.replace('/view', '/preview');
     return url;
+  };
+
+  // Parse quiz options — stored as JSON string in DB
+  const parseOptions = (options: any): string[] => {
+    if (Array.isArray(options)) return options;
+    try { return JSON.parse(options); } catch { return []; }
   };
 
   const handleMarkComplete = async (sectionId: string) => {
@@ -198,9 +209,9 @@ export default function ModuleViewPage() {
                           {currentSection.questions.map((q: any, i: number) => (
                             <div key={q.id} className="p-5 border border-slate-200 rounded-xl bg-white shadow-sm">
                               <p className="text-sm font-bold text-slate-500 mb-2">Question {i + 1}</p>
-                              <p className="text-lg font-medium text-slate-800 mb-4">{q.questionText}</p>
+                              <p className="text-lg font-medium text-slate-800 mb-4">{q.question || q.questionText}</p>
                               <div className="space-y-2">
-                                {q.options.map((opt: string, optIdx: number) => (
+                                {parseOptions(q.options).map((opt: string, optIdx: number) => (
                                   <label key={optIdx} className={`flex flex-col px-4 py-3 rounded-xl border-2 cursor-pointer transition-colors ${selectedAnswers[q.id] === optIdx ? 'border-purple-600 bg-purple-50' : 'border-slate-100 hover:border-slate-200 bg-white'}`}>
                                     <div className="flex items-center gap-3">
                                       <input type="radio" name={`q-${q.id}`} value={optIdx} className="w-4 h-4 text-purple-600"
