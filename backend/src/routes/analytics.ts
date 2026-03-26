@@ -1,38 +1,46 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
+// OPTIMIZATION: Parallel queries for the analytics dashboard
 router.get('/dashboard', async (req, res) => {
   try {
-    const totalCandidates = await prisma.user.count({ where: { role: 'CANDIDATE' } });
-    const totalModules = await prisma.module.count({ where: { status: 'published' } });
-    
-    // In a full implementation, you'd calculate this from an Enrollment/Progress table
-    // For now, we return mock percentages for UI binding
-    const avgProgress = 42; 
-    const modulesCompleted = 14; 
+    // Run ALL count/find queries in parallel instead of sequentially
+    const [totalCandidates, totalModules, recentCandidates, progressData] = await Promise.all([
+      prisma.user.count({ where: { role: 'CANDIDATE' } }),
+      prisma.module.count({ where: { status: 'PUBLISHED' } }),
+      prisma.user.findMany({
+        where: { role: 'CANDIDATE' },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          department: true,
+          createdAt: true
+        }
+      }),
+      // Compute real average progress from CandidateProgress table
+      (prisma.candidateProgress as any).groupBy({
+        by: ['userId'],
+        _count: { sectionId: true }
+      })
+    ]);
 
-    // Recent Joinees
-    const recentCandidates = await prisma.user.findMany({
-      where: { role: 'CANDIDATE' },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        department: true,
-        createdAt: true
-      }
-    });
+    // Calculate real avg progress
+    let avgProgress = 0;
+    if (progressData.length > 0) {
+      const totalCompleted = progressData.reduce((acc: number, p: any) => acc + p._count.sectionId, 0);
+      avgProgress = Math.round(totalCompleted / progressData.length);
+    }
 
     res.json({
       metrics: {
         totalCandidates,
         avgProgress,
-        modulesCompleted,
+        modulesCompleted: progressData.length,
         totalModules
       },
       recentCandidates

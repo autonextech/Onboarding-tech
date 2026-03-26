@@ -1,40 +1,52 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Helper to get full report data
 async function getReportsData() {
-  const candidates: any[] = await (prisma.user as any).findMany({
-    where: { role: 'CANDIDATE' },
-    include: {
-      progress: true,
-      quizAttempts: true
+  // OPTIMIZATION: Run both queries in parallel with Promise.all
+  const [candidates, modules] = await Promise.all([
+    (prisma.user as any).findMany({
+      where: { role: 'CANDIDATE' },
+      include: {
+        progress: true,
+        quizAttempts: true
+      }
+    }),
+    prisma.module.findMany({
+      where: { status: 'PUBLISHED' },
+      include: { sections: { include: { questions: true } } }
+    })
+  ]);
+
+  const reports = (candidates as any[]).map((candidate: any) => {
+    // OPTIMIZATION: Build hash maps for O(1) lookups instead of O(n) .filter()/.find()
+    const progressByModule = new Map<string, number>();
+    for (const p of (candidate.progress || [])) {
+      progressByModule.set(p.moduleId, (progressByModule.get(p.moduleId) || 0) + 1);
     }
-  });
 
-  const modules = await prisma.module.findMany({
-    where: { status: 'PUBLISHED' },
-    include: { sections: { include: { questions: true } } }
-  });
+    const attemptsByQuestion = new Map<string, any>();
+    for (const a of (candidate.quizAttempts || [])) {
+      attemptsByQuestion.set(a.questionId, a);
+    }
 
-  const reports = candidates.map((candidate: any) => {
     let totalProgress = 0;
     let totalScore = 0;
-    
-    const moduleStats = modules.map(mod => {
+
+    const moduleStats = modules.map((mod: any) => {
       const totalSections = mod.sections.length;
-      const completedSections = (candidate.progress || []).filter((p: any) => p.moduleId === mod.id).length;
+      const completedSections = progressByModule.get(mod.id) || 0;
       const progressPercent = totalSections > 0 ? Math.round((completedSections / totalSections) * 100) : 0;
 
       let correctAnswers = 0;
       let totalQuestions = 0;
 
-      mod.sections.forEach(sec => {
+      mod.sections.forEach((sec: any) => {
         totalQuestions += sec.questions.length;
-        sec.questions.forEach(q => {
-          const attempt = (candidate.quizAttempts || []).find((a: any) => a.questionId === q.id);
+        sec.questions.forEach((q: any) => {
+          const attempt = attemptsByQuestion.get(q.id);
           if (attempt && attempt.isCorrect) correctAnswers++;
         });
       });
@@ -50,8 +62,8 @@ async function getReportsData() {
     });
 
     if (moduleStats.length > 0) {
-      totalProgress = Math.round(moduleStats.reduce((acc, curr) => acc + curr.progress, 0) / moduleStats.length);
-      totalScore = Math.round(moduleStats.reduce((acc, curr) => acc + curr.score, 0) / moduleStats.length);
+      totalProgress = Math.round(moduleStats.reduce((acc: number, curr: any) => acc + curr.progress, 0) / moduleStats.length);
+      totalScore = Math.round(moduleStats.reduce((acc: number, curr: any) => acc + curr.score, 0) / moduleStats.length);
     }
 
     return {
@@ -69,7 +81,6 @@ async function getReportsData() {
 }
 
 // GET /api/reports
-// Fetch JSON reports for all candidates
 router.get('/', async (req, res) => {
   try {
     const reports = await getReportsData();
@@ -81,22 +92,18 @@ router.get('/', async (req, res) => {
 });
 
 // GET /api/reports/export
-// Download reports as a CSV file
 router.get('/export', async (req, res) => {
   try {
     const reports = await getReportsData();
-    
-    // CSV Header
-    let csv = 'Candidate Name,Email,Department,Overall Progress %,Overall MCQ Score %\n';
 
-    reports.forEach(r => {
+    let csv = 'Candidate Name,Email,Department,Overall Progress %,Overall MCQ Score %\n';
+    reports.forEach((r: any) => {
       csv += `"${r.name}","${r.email}","${r.department}",${r.overallProgress},${r.overallScore}\n`;
     });
 
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename=autonex_candidates_report.csv');
     res.status(200).send(csv);
-
   } catch (error) {
     console.error('Error exporting reports:', error);
     res.status(500).json({ error: 'Failed to export reports file' });

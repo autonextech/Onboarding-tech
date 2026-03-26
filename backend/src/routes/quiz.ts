@@ -1,36 +1,37 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // POST /api/quiz/submit
-// Receives answers, scores them against the source of truth, and saves the attempts.
+// Batch-optimized: fetches all questions in ONE query, then uses a transaction for upserts.
 router.post('/submit', async (req, res) => {
   try {
     const { userId, sectionId, answers } = req.body;
-    // answers expected format: [{ questionId: string, chosenIndex: number }]
 
     if (!userId || !sectionId || !answers || !Array.isArray(answers)) {
       return res.status(400).json({ error: 'Invalid input payload' });
     }
 
-    const results = [];
+    // OPTIMIZATION: Fetch ALL questions for this section in a single query
+    // instead of querying one-by-one inside a loop (N+1 problem)
+    const questionIds = answers.map((a: any) => a.questionId);
+    const questions = await prisma.quizQuestion.findMany({
+      where: { id: { in: questionIds } }
+    });
+    const questionMap = new Map(questions.map(q => [q.id, q]));
+
+    // Score all answers in memory
     let correctCount = 0;
-
-    for (const answer of answers) {
-      // Find the question to check the correct answer
-      const question = await prisma.quizQuestion.findUnique({
-        where: { id: answer.questionId }
-      });
-
-      if (!question) continue;
+    const upsertOps = answers.map((answer: any) => {
+      const question = questionMap.get(answer.questionId);
+      if (!question) return null;
 
       const isCorrect = question.correctOptionIndex === answer.chosenIndex;
       if (isCorrect) correctCount++;
 
-      // Upsert the attempt so they can retake it and overwrite their old score
-      const attempt = await prisma.quizAttempt.upsert({
+      // OPTIMIZATION: Build upsert operations for a single $transaction call
+      return (prisma.quizAttempt as any).upsert({
         where: {
           userId_questionId: {
             userId,
@@ -50,9 +51,10 @@ router.post('/submit', async (req, res) => {
           isCorrect
         }
       });
+    }).filter(Boolean);
 
-      results.push(attempt);
-    }
+    // OPTIMIZATION: Execute all upserts in a single database transaction
+    const results = await prisma.$transaction(upsertOps);
 
     const scorePercentage = answers.length > 0 ? Math.round((correctCount / answers.length) * 100) : 0;
 

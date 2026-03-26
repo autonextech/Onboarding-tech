@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 
 const router = Router();
-const prisma = new PrismaClient();
 
 // Get all modules
 router.get('/', async (req, res) => {
@@ -101,6 +100,34 @@ router.put('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating module:', error);
     res.status(500).json({ error: 'Failed to update module' });
+  }
+});
+
+// OPTIMIZATION: Dedicated single-module endpoint for the candidate ModuleViewPage
+// Avoids fetching ALL modules + ALL sections when you only need one
+router.get('/:id', async (req, res) => {
+  try {
+    const mod = await prisma.module.findUnique({
+      where: { id: req.params.id },
+      include: {
+        sections: {
+          include: {
+            documents: true,
+            questions: true,
+          },
+          orderBy: { order: 'asc' }
+        }
+      }
+    });
+
+    if (!mod) {
+      return res.status(404).json({ error: 'Module not found' });
+    }
+
+    res.json(mod);
+  } catch (error) {
+    console.error('Error fetching module:', error);
+    res.status(500).json({ error: 'Failed to fetch module' });
   }
 });
 

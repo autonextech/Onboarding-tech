@@ -21,22 +21,17 @@ export default function ModuleViewPage() {
   useEffect(() => {
     if (!userId || !moduleId) return;
 
-    // Fetch progress
-    fetch(`${API_URL}/api/progress/${userId}`)
-      .then(res => res.json())
-      .then((progress) => setCompletedSections(new Set(progress.map((p: any) => p.sectionId))))
-      .catch(console.error);
-
-    // Fetch the module (we borrow the candidate dashboard route and filter)
-    fetch(`${API_URL}/api/candidates/${userId}/dashboard`)
-      .then(res => res.json())
-      .then((data) => {
-        const targetModule = data.modules.find((m: any) => m.id === moduleId);
-        // Sort sections by order
-        if (targetModule && targetModule.sections) {
-          targetModule.sections.sort((a: any, b: any) => a.order - b.order);
+    // OPTIMIZATION: Fetch module AND progress in parallel using the dedicated endpoint
+    Promise.all([
+      fetch(`${API_URL}/api/modules/${moduleId}`).then(res => res.json()),
+      fetch(`${API_URL}/api/progress/${userId}`).then(res => res.json())
+    ])
+      .then(([moduleResult, progressResult]) => {
+        if (moduleResult && moduleResult.sections) {
+          moduleResult.sections.sort((a: any, b: any) => a.order - b.order);
         }
-        setModuleData(targetModule);
+        setModuleData(moduleResult);
+        setCompletedSections(new Set(progressResult.map((p: any) => p.sectionId)));
       })
       .catch(console.error)
       .finally(() => setLoading(false));

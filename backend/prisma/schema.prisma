@@ -47,6 +47,8 @@ model Section {
 
   candidateProgress CandidateProgress[]
   quizAttempts      QuizAttempt[]
+
+  @@index([moduleId])
 }
 
 model Document {
@@ -80,6 +82,8 @@ model CandidateProgress {
   completedAt DateTime @default(now())
 
   @@unique([userId, sectionId])
+  @@index([userId])
+  @@index([moduleId])
 }
 
 model QuizAttempt {
@@ -95,4 +99,6 @@ model QuizAttempt {
   attemptedAt DateTime     @default(now())
 
   @@unique([userId, questionId])
+  @@index([userId])
+  @@index([sectionId])
 }
