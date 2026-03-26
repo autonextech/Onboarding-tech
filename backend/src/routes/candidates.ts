@@ -21,7 +21,7 @@ router.get('/:id/dashboard', async (req, res) => {
     // Fetch all data in parallel for speed
     const [modules, progressRecords, quizAttempts] = await Promise.all([
       prisma.module.findMany({
-        where: { status: 'PUBLISHED' },
+        where: { status: { in: ['published', 'PUBLISHED', 'Published'] } },
         include: {
           sections: {
             include: { documents: true, questions: true },

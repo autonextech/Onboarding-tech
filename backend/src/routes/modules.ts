@@ -89,13 +89,51 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Update module status (e.g. publish/draft)
+// Full module update — update metadata + replace sections
 router.put('/:id', async (req, res) => {
   try {
-    const { status } = req.body;
+    const { title, description, status, assessmentUrl, sections } = req.body;
+
+    // Delete old sections (cascade deletes documents + questions)
+    await prisma.section.deleteMany({ where: { moduleId: req.params.id } });
+
     const updated = await prisma.module.update({
       where: { id: req.params.id },
-      data: { status }
+      data: {
+        title,
+        description,
+        status,
+        assessmentUrl: assessmentUrl || null,
+        sections: sections ? {
+          create: sections.map((sec: any, idx: number) => ({
+            title: sec.title,
+            description: sec.description,
+            videoUrl: sec.videoUrl || null,
+            videoDuration: sec.videoDuration || null,
+            order: idx,
+            documents: sec.document ? {
+              create: [{
+                title: sec.document.title,
+                type: sec.document.type,
+                url: sec.document.url || '#'
+              }]
+            } : undefined,
+            questions: sec.questions?.length ? {
+              create: sec.questions.map((q: any) => ({
+                question: q.question,
+                options: JSON.stringify(q.options),
+                correctOptionIndex: q.correctIndex ?? 0
+              }))
+            } : undefined
+          }))
+        } : undefined
+      },
+      include: {
+        sections: {
+          include: { documents: true, questions: true },
+          orderBy: { order: 'asc' }
+        }
+      }
     });
     res.json(updated);
   } catch (error) {

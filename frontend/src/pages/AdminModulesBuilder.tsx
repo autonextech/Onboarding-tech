@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { Save, Plus, ArrowLeft, Link2 } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Save, Plus, ArrowLeft, Link2, Loader2 } from 'lucide-react';
 import ModuleSectionCard from '../components/admin/ModuleSectionCard';
 import type { SectionData } from '../components/admin/ModuleSectionCard';
 
@@ -9,14 +9,60 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export default function AdminModulesBuilder() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [assessmentUrl, setAssessmentUrl] = useState('');
   const [status, setStatus] = useState<'published' | 'draft'>('published');
   const [isSaving, setIsSaving] = useState(false);
-  
-  // Start with an EMPTY section list — no fake data
+  const [isLoading, setIsLoading] = useState(!!editId);
   const [sections, setSections] = useState<SectionData[]>([]);
+
+  // Load existing module if editing
+  useEffect(() => {
+    if (!editId) return;
+    setIsLoading(true);
+    fetch(`${API_URL}/api/modules/${editId}`)
+      .then(r => r.json())
+      .then(data => {
+        setTitle(data.title || '');
+        setDescription(data.description || '');
+        setAssessmentUrl(data.assessmentUrl || '');
+        setStatus(data.status?.toLowerCase() === 'draft' ? 'draft' : 'published');
+        
+        // Map sections from DB format to component format
+        const mappedSections: SectionData[] = (data.sections || []).map((s: any) => ({
+          id: s.id,
+          title: s.title || '',
+          description: s.description || '',
+          videoUrl: s.videoUrl || '',
+          videoDuration: s.videoDuration || '',
+          document: s.documents?.[0] ? {
+            title: s.documents[0].title,
+            type: s.documents[0].type,
+            url: s.documents[0].url
+          } : undefined,
+          questions: (s.questions || []).map((q: any) => {
+            let opts: string[] = [];
+            try { opts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options; } catch { opts = []; }
+            return {
+              id: q.id,
+              question: q.question || '',
+              options: opts.length === 4 ? opts : ['', '', '', ''],
+              correctIndex: q.correctOptionIndex ?? 0
+            };
+          })
+        }));
+        setSections(mappedSections);
+      })
+      .catch(err => {
+        console.error('Failed to load module:', err);
+        alert('Failed to load module for editing.');
+      })
+      .finally(() => setIsLoading(false));
+  }, [editId]);
 
   const addSection = () => {
     setSections([...sections, {
@@ -44,16 +90,19 @@ export default function AdminModulesBuilder() {
     }
     try {
       setIsSaving(true);
-      const res = await fetch(`${API_URL}/api/modules`, {
-        method: 'POST',
+      const method = editId ? 'PUT' : 'POST';
+      const url = editId ? `${API_URL}/api/modules/${editId}` : `${API_URL}/api/modules`;
+      
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, description, status, assessmentUrl: assessmentUrl || null, sections })
       });
       
       if (!res.ok) throw new Error('Failed to save module');
       
-      alert('Module successfully saved!');
-      navigate('/admin');
+      alert(editId ? 'Module updated successfully!' : 'Module created successfully!');
+      navigate('/admin/modules');
     } catch (err) {
       console.error(err);
       alert('Error saving module. Please make sure the backend is running.');
@@ -62,21 +111,36 @@ export default function AdminModulesBuilder() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-full flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-500">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          <span>Loading module data...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-full px-4 py-6 sm:px-6 lg:px-10 max-w-4xl mx-auto">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <button onClick={() => navigate(-1)} className="text-sm font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 mb-4 transition-colors">
-          <ArrowLeft className="h-4 w-4" /> Back to Admin
+        <button onClick={() => navigate('/admin/modules')} className="text-sm font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 mb-4 transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Back to Modules
         </button>
         
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>Create Module</h2>
-            <p className="text-sm text-slate-500">Build interactive onboarding courses with real content.</p>
+            <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
+              {editId ? 'Edit Module' : 'Create Module'}
+            </h2>
+            <p className="text-sm text-slate-500">
+              {editId ? 'Update this module\'s content and settings.' : 'Build interactive onboarding courses with real content.'}
+            </p>
           </div>
           <button onClick={handleSave} disabled={isSaving} className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg shadow-md disabled:opacity-50"
             style={{ background: 'linear-gradient(135deg, #7E22CE, #A855F7)' }}>
-            <Save className="h-4 w-4" /> {isSaving ? 'Saving...' : 'Save Module'}
+            <Save className="h-4 w-4" /> {isSaving ? 'Saving...' : (editId ? 'Update Module' : 'Save Module')}
           </button>
         </div>
       </motion.div>
