@@ -12,22 +12,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5174',
-  'https://onboarding-tech.vercel.app',
-  process.env.FRONTEND_URL || ''
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, Railway health checks)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    callback(new Error(`CORS blocked: ${origin}`));
-  },
-  credentials: true
-}));
+// Allow all origins - handles preflight OPTIONS automatically
+app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'], allowedHeaders: ['Content-Type','Authorization'] }));
+app.options('*', cors()); // Respond to ALL preflight requests
 app.use(express.json());
 
 app.use('/api/auth', authRouter);

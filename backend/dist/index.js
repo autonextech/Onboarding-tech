@@ -14,23 +14,9 @@ const candidates_1 = __importDefault(require("./routes/candidates"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
-const allowedOrigins = [
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://onboarding-tech.vercel.app',
-    process.env.FRONTEND_URL || ''
-].filter(Boolean);
-app.use((0, cors_1.default)({
-    origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, curl, Railway health checks)
-        if (!origin)
-            return callback(null, true);
-        if (allowedOrigins.includes(origin))
-            return callback(null, true);
-        callback(new Error(`CORS blocked: ${origin}`));
-    },
-    credentials: true
-}));
+// Allow all origins - handles preflight OPTIONS automatically
+app.use((0, cors_1.default)({ origin: '*', methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], allowedHeaders: ['Content-Type', 'Authorization'] }));
+app.options('*', (0, cors_1.default)()); // Respond to ALL preflight requests
 app.use(express_1.default.json());
 app.use('/api/auth', auth_1.default);
 app.use('/api/modules', modules_1.default);
