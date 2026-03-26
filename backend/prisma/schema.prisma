@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid())
+  name           String
+  email          String   @unique
+  passwordHash   String
+  role           String   // 'ADMIN' or 'CANDIDATE'
+  department     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Module {
+  id          String    @id @default(uuid())
+  title       String
+  description String
+  status      String    // 'DRAFT' or 'PUBLISHED'
+  sections    Section[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Section {
+  id            String         @id @default(uuid())
+  moduleId      String
+  module        Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title         String
+  description   String
+  videoUrl      String?
+  videoDuration String?
+  order         Int            @default(0)
+  documents     Document[]
+  questions     QuizQuestion[]
+}
+
+model Document {
+  id        String  @id @default(uuid())
+  sectionId String
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  title     String
+  type      String
+  url       String
+}
+
+model QuizQuestion {
+  id                 String  @id @default(uuid())
+  sectionId          String
+  section            Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  question           String
+  options            String  // Stored as JSON string
+  correctOptionIndex Int
+}

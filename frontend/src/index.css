@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  /* Navy Blue & Sky Blue Palette */
+  --color-royal: #1E40AF;
+  --color-navy: #1E3A8A;
+  --color-sky: #0EA5E9;
+  --color-bright: #3B82F6;
+  --color-bg: #F1F5F9;
+  --color-card: #FFFFFF;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #64748B;
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+
+  --font-display: 'Instrument Sans', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+}
+
+body {
+  font-family: 'Hanken Grotesk', system-ui, sans-serif;
+  background: #F1F5F9;
+  color: #0F172A;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Instrument Sans', system-ui, sans-serif;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 24px rgba(30, 58, 138, 0.06), 0 1px 3px rgba(30, 58, 138, 0.04);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  box-shadow: 0 8px 32px rgba(30, 58, 138, 0.1), 0 2px 8px rgba(30, 58, 138, 0.06);
+  transform: translateY(-2px);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #1E40AF, #0EA5E9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
