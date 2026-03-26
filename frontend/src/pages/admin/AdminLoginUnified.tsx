@@ -20,7 +20,8 @@ export default function AdminLoginUnified() {
     
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-      const res = await fetch(`${API_URL}/api/auth/login`, {
+      // Enforce ADMIN role — candidates/mentors get rejected at the API level
+      const res = await fetch(`${API_URL}/api/auth/login?role=ADMIN`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -28,10 +29,6 @@ export default function AdminLoginUnified() {
       
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Login failed');
-      
-      if (data.user.role !== 'admin' && data.user.role !== 'ADMIN') {
-         throw new Error('Unauthorized Access. Need Admin Permissions.');
-      }
       
       login(data.token, data.user);
       navigate('/admin');
