@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store/useStore';
 import Sidebar from './components/layout/Sidebar';
-import LoginPage from './pages/LoginPage';
+import LoginUnified from './pages/LoginUnified';
+import AdminLoginUnified from './pages/admin/AdminLoginUnified';
 import CandidateDashboard from './pages/CandidateDashboard';
 import ModulesPage from './pages/ModulesPage';
 import TasksPage from './pages/TasksPage';
@@ -34,7 +35,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<LoginUnified />} />
+        <Route path="/admin/login" element={<AdminLoginUnified />} />
         <Route path="/dashboard" element={<ProtectedRoute><CandidateDashboard /></ProtectedRoute>} />
         <Route path="/modules" element={<ProtectedRoute><ModulesPage /></ProtectedRoute>} />
         <Route path="/tasks" element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />

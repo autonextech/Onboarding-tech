@@ -6,6 +6,9 @@ import usersRouter from './routes/users';
 import analyticsRouter from './routes/analytics';
 import authRouter from './routes/auth';
 import candidatesRouter from './routes/candidates';
+import progressRouter from './routes/progress';
+import quizRouter from './routes/quiz';
+import reportsRouter from './routes/reports';
 
 dotenv.config();
 
@@ -22,6 +25,9 @@ app.use('/api/modules', modulesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/analytics', analyticsRouter);
 app.use('/api/candidates', candidatesRouter);
+app.use('/api/progress', progressRouter);
+app.use('/api/quiz', quizRouter);
+app.use('/api/reports', reportsRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ 
