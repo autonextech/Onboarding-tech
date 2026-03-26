@@ -56,7 +56,7 @@ export default function LoginPage() {
               <input type="text" value={name} onChange={e => setName(e.target.value)}
                 placeholder={role === 'admin' ? 'Admin User' : 'Alex Sterling'}
                 className="w-full px-4 py-3 rounded-lg text-white placeholder-blue-400/50 outline-none focus:ring-2 transition-all"
-                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', focusRingColor: '#0EA5E9' }} />
+                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }} />
             </div>
 
             <div>

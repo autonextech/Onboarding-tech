@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, BookOpen, Trash2, Edit, MoreVertical, Layers } from 'lucide-react';
+import { Plus, Search, BookOpen, Trash2, Edit, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface Module {

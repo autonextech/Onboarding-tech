@@ -29,7 +29,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium mb-1" style={{ color: '#64748B' }}>Full Name</label>
-                <input type="text" defaultValue={userName} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 bg-white transition-all" style={{ color: '#0F172A', focusRingColor: '#1E40AF' }} />
+                <input type="text" defaultValue={userName} className="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 bg-white transition-all" style={{ color: '#0F172A' }} />
               </div>
               <div>
                 <label className="block text-xs font-medium mb-1" style={{ color: '#64748B' }}>Email</label>
