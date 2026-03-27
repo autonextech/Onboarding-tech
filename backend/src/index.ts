@@ -10,6 +10,7 @@ import mentorsRouter from './routes/mentors';
 import progressRouter from './routes/progress';
 import quizRouter from './routes/quiz';
 import reportsRouter from './routes/reports';
+import teamRouter from './routes/team';
 
 dotenv.config();
 
@@ -30,6 +31,7 @@ app.use('/api/mentors', mentorsRouter);
 app.use('/api/progress', progressRouter);
 app.use('/api/quiz', quizRouter);
 app.use('/api/reports', reportsRouter);
+app.use('/api/team', teamRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ 

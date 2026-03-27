@@ -24,6 +24,7 @@ interface MentorOption {
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserData[]>([]);
   const [mentors, setMentors] = useState<MentorOption[]>([]);
+  const [mentorsError, setMentorsError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'ALL' | 'CANDIDATE' | 'MENTOR'>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -53,10 +54,14 @@ export default function AdminUsersPage() {
   const fetchMentors = async () => {
     try {
       const res = await fetch(`${API_URL}/api/users/mentors`);
+      if (!res.ok) throw new Error(`API error ${res.status}`);
       const data = await res.json();
+      if (!Array.isArray(data)) throw new Error('Unexpected response format');
       setMentors(data);
-    } catch (err) {
-      console.error(err);
+      setMentorsError(null);
+    } catch (err: any) {
+      console.error('Failed to fetch mentors:', err);
+      setMentorsError(err.message || 'Could not load mentors');
     }
   };
 
@@ -243,8 +248,8 @@ export default function AdminUsersPage() {
                   <td className="py-4 px-6">
                     {u.role === 'CANDIDATE' ? (
                       <select value={u.mentorId || ''} onChange={e => handleAssignMentor(u.id, e.target.value)}
-                        className="text-sm border border-slate-300 rounded-lg px-2 py-1.5 bg-white focus:ring-2 focus:ring-purple-500 outline-none min-w-[140px]">
-                        <option value="">Unassigned</option>
+                        className="text-sm border border-slate-300 rounded-lg px-2 py-1.5 bg-white focus:ring-2 focus:ring-primary outline-none min-w-[140px]">
+                        <option value="">{mentorsError ? '⚠ Failed to load' : 'Unassigned'}</option>
                         {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                       </select>
                     ) : (

@@ -9,12 +9,15 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/api/analytics/full`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        return res.json();
+      })
       .then(json => {
-         // Re-map icons dynamically
          if (json.kpis) {
            json.kpis[0].icon = Trophy;
            json.kpis[0].color = '#F59E0B'; json.kpis[0].bg = '#fffbeb';
@@ -25,15 +28,25 @@ export default function AdminAnalyticsPage() {
          }
          setData(json);
       })
-      .catch(console.error)
+      .catch(err => {
+        console.error('Analytics fetch error:', err);
+        setError(err.message || 'Failed to load analytics data');
+      })
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading || !data) return <div className="p-10 text-center text-slate-500">Loading analytics...</div>;
+  if (loading) return <div className="p-10 text-center text-slate-500">Loading analytics...</div>;
+  if (error || !data) return (
+    <div className="p-10 text-center">
+      <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md mx-auto">
+        <p className="font-bold text-red-700 mb-1">Failed to load analytics</p>
+        <p className="text-xs text-red-500 font-mono">{error || 'No data returned from server'}</p>
+        <button onClick={() => window.location.reload()} className="mt-4 px-4 py-2 bg-red-600 text-white text-sm font-bold rounded-lg hover:bg-red-700 transition-colors">Retry</button>
+      </div>
+    </div>
+  );
 
   const { kpis, weeklyData, distribution } = data;
-
-  if (loading) return <div className="p-10 text-center text-slate-500">Loading analytics...</div>;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
