@@ -10,6 +10,26 @@ export default function AdminAnalyticsPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch(`${API_URL}/api/reports/export`);
+      if (!res.ok) throw new Error(`Export failed: ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `autonex_report_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(err.message || 'Export failed');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     fetch(`${API_URL}/api/analytics/full`)
@@ -55,9 +75,9 @@ export default function AdminAnalyticsPage() {
           <h2 className="text-2xl font-extrabold text-slate-900" style={{ fontFamily: "'Outfit', sans-serif" }}>Platform Analytics</h2>
           <p className="text-sm text-slate-500">Track onboarding performance and engagement metrics.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg"
+        <button onClick={handleExport} disabled={exporting} className="flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-semibold transition-shadow hover:shadow-lg disabled:opacity-50"
           style={{ background: 'linear-gradient(135deg, #1E40AF, #0EA5E9)' }}>
-          <Download className="h-4 w-4" /> Export Report
+          <Download className="h-4 w-4" /> {exporting ? 'Exporting...' : 'Export Report'}
         </button>
       </motion.div>
 

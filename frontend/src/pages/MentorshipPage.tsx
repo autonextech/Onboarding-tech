@@ -14,23 +14,20 @@ export default function MentorshipPage() {
   useEffect(() => {
     if (!userId) return;
     
-    // Fetch dashboard for mentor info
-    fetch(`${API_URL}/api/candidates/${userId}/dashboard`)
-      .then(r => r.json())
-      .then(dashboardData => {
-        if (dashboardData.stats?.mentorName && dashboardData.stats.mentorName !== 'Unassigned') {
-          setMentor({ name: dashboardData.stats.mentorName });
+    Promise.allSettled([
+      fetch(`${API_URL}/api/candidates/${userId}/dashboard`).then(r => r.json()),
+      fetch(`${API_URL}/api/team`).then(r => r.json())
+    ]).then(([dashResult, teamResult]) => {
+      if (dashResult.status === 'fulfilled') {
+        const d = dashResult.value;
+        if (d?.stats?.mentorName && d.stats.mentorName !== 'Unassigned') {
+          setMentor({ name: d.stats.mentorName });
         }
-      })
-      .catch(console.error);
-
-    // Fetch global company team directory
-    fetch(`${API_URL}/api/team`)
-      .then(r => r.json())
-      .then(teamData => {
-        setTeam(Array.isArray(teamData) ? teamData : []);
-      })
-      .catch(console.error)
+      }
+      if (teamResult.status === 'fulfilled') {
+        setTeam(Array.isArray(teamResult.value) ? teamResult.value : []);
+      }
+    }).catch(console.error)
       .finally(() => setLoading(false));
   }, [userId]);
 

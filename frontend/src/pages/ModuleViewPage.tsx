@@ -111,6 +111,25 @@ export default function ModuleViewPage() {
               <span className="text-primary">{currentSection.title}</span>
             </h1>
           )}
+
+          {/* Assessment Link - shown when set by admin */}
+          {moduleData.assessmentUrl && (
+            <div className="mt-6 inline-flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3">
+              <span className="material-symbols-outlined text-amber-600 text-xl">emoji_events</span>
+              <div>
+                <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Assessment Available</p>
+                <p className="text-xs text-amber-700 mt-0.5">Complete this module's formal assessment to get certified.</p>
+              </div>
+              <a
+                href={moduleData.assessmentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shrink-0"
+              >
+                Take Assessment ↗
+              </a>
+            </div>
+          )}
         </header>
 
         {currentSection && (

@@ -42,6 +42,24 @@ router.post('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to add team member' });
     }
 });
+// PUT /api/team/:id - Edit a team member
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, role, department, email, linkedin, slack } = req.body;
+        if (!name || !role || !department) {
+            return res.status(400).json({ error: 'Name, role, and department are required' });
+        }
+        const updated = await prisma.teamMember.update({
+            where: { id },
+            data: { name, role, department, email: email || null, linkedin: linkedin || null, slack: slack || null }
+        });
+        res.json(updated);
+    }
+    catch (error) {
+        res.status(500).json({ error: 'Failed to update team member' });
+    }
+});
 // DELETE a team member
 router.delete('/:id', async (req, res) => {
     try {
