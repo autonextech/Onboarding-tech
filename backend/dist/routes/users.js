@@ -1,24 +1,57 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const client_1 = require("@prisma/client");
+const prisma_1 = __importDefault(require("../lib/prisma"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const multer_1 = __importDefault(require("multer"));
+const XLSX = __importStar(require("xlsx"));
 const router = (0, express_1.Router)();
-const prisma = new client_1.PrismaClient();
-// Get all users
+const upload = (0, multer_1.default)({ storage: multer_1.default.memoryStorage() });
+// GET /api/users — All users with mentor info
 router.get('/', async (req, res) => {
     try {
-        const users = await prisma.user.findMany({
+        const users = await prisma_1.default.user.findMany({
             orderBy: { createdAt: 'desc' },
             select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                department: true,
+                id: true, name: true, email: true, role: true,
+                department: true, isActive: true, mentorId: true,
+                mentor: { select: { id: true, name: true, email: true } },
                 createdAt: true
             }
         });
@@ -29,39 +62,148 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 });
-// Create a new user (Candidate or Mentor or Admin)
+// GET /api/users/mentors — Only mentors (for dropdowns)
+router.get('/mentors', async (req, res) => {
+    try {
+        const mentors = await prisma_1.default.user.findMany({
+            where: { role: 'MENTOR', isActive: true },
+            select: { id: true, name: true, email: true, department: true }
+        });
+        res.json(mentors);
+    }
+    catch (error) {
+        console.error('Error fetching mentors:', error);
+        res.status(500).json({ error: 'Failed to fetch mentors' });
+    }
+});
+// GET /api/users/sample-excel — Download sample Excel template for bulk import
+router.get('/sample-excel', (req, res) => {
+    const wb = XLSX.utils.book_new();
+    const data = [
+        ['name', 'email', 'password', 'role', 'department'],
+        ['John Doe', 'john@company.com', 'Pass@123', 'CANDIDATE', 'Engineering'],
+        ['Jane Smith', 'jane@company.com', 'Pass@123', 'CANDIDATE', 'Marketing'],
+        ['Mike Johnson', 'mike@company.com', 'Pass@123', 'MENTOR', 'Engineering'],
+        ['Sarah Lee', 'sarah@company.com', 'Pass@123', 'MENTOR', 'HR'],
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    ws['!cols'] = [{ wch: 20 }, { wch: 25 }, { wch: 15 }, { wch: 12 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Users');
+    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=autonex_users_sample.xlsx');
+    res.send(buf);
+});
+// POST /api/users/bulk-import — Import users from Excel
+router.post('/bulk-import', upload.single('file'), async (req, res) => {
+    try {
+        if (!req.file)
+            return res.status(400).json({ error: 'No file uploaded' });
+        const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws);
+        if (rows.length === 0)
+            return res.status(400).json({ error: 'Empty spreadsheet' });
+        let created = 0;
+        let skipped = 0;
+        const errors = [];
+        for (const row of rows) {
+            const name = row.name?.toString().trim();
+            const email = row.email?.toString().trim().toLowerCase();
+            const password = row.password?.toString().trim();
+            const role = row.role?.toString().trim().toUpperCase();
+            const department = row.department?.toString().trim() || null;
+            if (!name || !email || !password || !role) {
+                errors.push(`Skipped row: missing required field (name/email/password/role)`);
+                skipped++;
+                continue;
+            }
+            if (role !== 'CANDIDATE' && role !== 'MENTOR') {
+                errors.push(`Skipped ${email}: role must be CANDIDATE or MENTOR`);
+                skipped++;
+                continue;
+            }
+            const existing = await prisma_1.default.user.findUnique({ where: { email } });
+            if (existing) {
+                errors.push(`Skipped ${email}: already exists`);
+                skipped++;
+                continue;
+            }
+            const salt = await bcrypt_1.default.genSalt(10);
+            const passwordHash = await bcrypt_1.default.hash(password, salt);
+            await prisma_1.default.user.create({ data: { name, email, passwordHash, role, department } });
+            created++;
+        }
+        res.json({ message: `Import complete: ${created} created, ${skipped} skipped`, created, skipped, errors });
+    }
+    catch (error) {
+        console.error('Bulk import error:', error);
+        res.status(500).json({ error: 'Failed to process file' });
+    }
+});
+// POST /api/users — Create new user
 router.post('/', async (req, res) => {
     try {
         const { name, email, password, role, department } = req.body;
-        // Check if user exists
-        const existing = await prisma.user.findUnique({ where: { email } });
-        if (existing) {
+        const existing = await prisma_1.default.user.findUnique({ where: { email } });
+        if (existing)
             return res.status(400).json({ error: 'Email already in use' });
-        }
         const salt = await bcrypt_1.default.genSalt(10);
         const passwordHash = await bcrypt_1.default.hash(password, salt);
-        const newUser = await prisma.user.create({
-            data: {
-                name,
-                email,
-                passwordHash,
-                role,
-                department
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-                role: true,
-                department: true,
-                createdAt: true
-            }
+        const newUser = await prisma_1.default.user.create({
+            data: { name, email, passwordHash, role, department },
+            select: { id: true, name: true, email: true, role: true, department: true, isActive: true, createdAt: true }
         });
         res.status(201).json(newUser);
     }
     catch (error) {
         console.error('Error creating user:', error);
         res.status(500).json({ error: 'Failed to create user' });
+    }
+});
+// PUT /api/users/:id/assign-mentor
+router.put('/:id/assign-mentor', async (req, res) => {
+    try {
+        const { mentorId } = req.body;
+        const updated = await prisma_1.default.user.update({
+            where: { id: req.params.id },
+            data: { mentorId: mentorId || null },
+            select: { id: true, name: true, mentorId: true, mentor: { select: { id: true, name: true } } }
+        });
+        res.json(updated);
+    }
+    catch (error) {
+        console.error('Error assigning mentor:', error);
+        res.status(500).json({ error: 'Failed to assign mentor' });
+    }
+});
+// PUT /api/users/:id/toggle-active
+router.put('/:id/toggle-active', async (req, res) => {
+    try {
+        const user = await prisma_1.default.user.findUnique({ where: { id: req.params.id } });
+        if (!user)
+            return res.status(404).json({ error: 'User not found' });
+        const updated = await prisma_1.default.user.update({
+            where: { id: req.params.id },
+            data: { isActive: !user.isActive },
+            select: { id: true, name: true, isActive: true }
+        });
+        res.json(updated);
+    }
+    catch (error) {
+        console.error('Error toggling user status:', error);
+        res.status(500).json({ error: 'Failed to toggle user status' });
+    }
+});
+// DELETE /api/users/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        await prisma_1.default.user.delete({ where: { id: req.params.id } });
+        res.json({ message: 'User deleted' });
+    }
+    catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Failed to delete user' });
     }
 });
 exports.default = router;
