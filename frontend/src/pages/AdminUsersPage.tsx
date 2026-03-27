@@ -100,14 +100,20 @@ export default function AdminUsersPage() {
 
   const handleAssignMentor = async (userId: string, mentorId: string) => {
     try {
-      await fetch(`${API_URL}/api/users/${userId}/assign-mentor`, {
+      const res = await fetch(`${API_URL}/api/users/${userId}/assign-mentor`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mentorId: mentorId || null })
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(`Failed to assign mentor: ${err.error || res.status}`);
+        return;
+      }
       fetchUsers();
     } catch (err) {
-      console.error(err);
+      console.error('Assign mentor error:', err);
+      alert('Network error — could not assign mentor. Check backend connection.');
     }
   };
 

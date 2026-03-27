@@ -14,19 +14,24 @@ export default function MentorshipPage() {
   useEffect(() => {
     if (!userId) return;
     
-    // Fetch mentorship info and team info
-    Promise.all([
-      fetch(`${API_URL}/api/candidates/${userId}/dashboard`).then(r => r.json()),
-      fetch(`${API_URL}/api/candidates/${userId}/team`).then(r => r.json())
-    ])
-    .then(([dashboardData, teamData]) => {
-      if (dashboardData.stats?.mentorName && dashboardData.stats.mentorName !== 'Unassigned') {
-        setMentor({ name: dashboardData.stats.mentorName });
-      }
-      setTeam(teamData || []);
-    })
-    .catch(console.error)
-    .finally(() => setLoading(false));
+    // Fetch dashboard for mentor info
+    fetch(`${API_URL}/api/candidates/${userId}/dashboard`)
+      .then(r => r.json())
+      .then(dashboardData => {
+        if (dashboardData.stats?.mentorName && dashboardData.stats.mentorName !== 'Unassigned') {
+          setMentor({ name: dashboardData.stats.mentorName });
+        }
+      })
+      .catch(console.error);
+
+    // Fetch global company team directory
+    fetch(`${API_URL}/api/team`)
+      .then(r => r.json())
+      .then(teamData => {
+        setTeam(Array.isArray(teamData) ? teamData : []);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [userId]);
 
   if (loading) return <div className="p-10 text-center text-slate-500">Loading mentorship info...</div>;
