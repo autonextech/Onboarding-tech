@@ -97,7 +97,7 @@ export default function ModuleViewPage() {
 
   return (
     <div className="flex flex-col xl:flex-row min-h-full bg-surface">
-      <div className="flex-1 overflow-y-auto px-8 md:px-16 py-12 animate-in fade-in duration-500">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-8 md:px-16 py-8 md:py-12 animate-in fade-in duration-500">
         <header className="mb-12">
           <div className="flex items-center space-x-2 text-primary font-medium mb-4">
             <button onClick={() => navigate('/dashboard')} className="material-symbols-outlined text-sm hover:text-primary-container cursor-pointer transition-colors">arrow_back</button>
@@ -106,25 +106,28 @@ export default function ModuleViewPage() {
             <span className="text-xs uppercase tracking-[0.2em]">Learning Pathway</span>
           </div>
           {currentSection && (
-            <h1 className="text-4xl md:text-5xl font-bold text-on-surface tracking-tight leading-[1.15] headline-font">
-              Section {activeSectionIndex + 1}: <br />
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-on-surface tracking-tight leading-[1.15] headline-font pr-4">
+              Section {activeSectionIndex + 1}: <br className="hidden sm:block" />
               <span className="text-primary">{currentSection.title}</span>
             </h1>
           )}
 
           {/* Assessment Link - shown when set by admin */}
           {moduleData.assessmentUrl && (
-            <div className="mt-6 inline-flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-5 py-3">
-              <span className="material-symbols-outlined text-amber-600 text-xl">emoji_events</span>
-              <div>
-                <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">Assessment Available</p>
+            <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 bg-amber-50 border border-amber-200 rounded-xl px-4 sm:px-5 py-3 w-full sm:w-auto">
+              <span className="material-symbols-outlined text-amber-600 text-xl hidden sm:block">emoji_events</span>
+              <div className="flex-1">
+                <p className="text-xs font-bold text-amber-800 uppercase tracking-wider flex items-center gap-2">
+                  <span className="material-symbols-outlined text-amber-600 text-[18px] sm:hidden">emoji_events</span>
+                  Assessment Available
+                </p>
                 <p className="text-xs text-amber-700 mt-0.5">Complete this module's formal assessment to get certified.</p>
               </div>
               <a
                 href={moduleData.assessmentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ml-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shrink-0"
+                className="w-full sm:w-auto text-center px-4 py-2.5 sm:py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors shrink-0 mt-2 sm:mt-0"
               >
                 Take Assessment ↗
               </a>
@@ -135,7 +138,7 @@ export default function ModuleViewPage() {
         {currentSection && (
           <>
             {/* Tabs */}
-            <div className="flex space-x-8 border-b border-surface-container-high mb-12">
+            <div className="flex space-x-6 sm:space-x-8 border-b border-surface-container-high mb-8 sm:mb-12 overflow-x-auto scrollbar-hide">
               <button 
                 onClick={() => setActiveTab('content')} 
                 className={`pb-4 text-xs font-bold uppercase tracking-widest transition-all cursor-pointer ${activeTab === 'content' ? 'border-b-2 border-primary text-primary' : 'text-slate-400 hover:text-slate-600'}`}

@@ -140,31 +140,31 @@ export default function AdminDashboard() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-low text-slate-500 uppercase text-[10px] font-bold tracking-widest font-body">
-                <th className="px-8 py-4">Candidate Name</th>
-                <th className="px-8 py-4">Department</th>
-                <th className="px-8 py-4">Mentor</th>
-                <th className="px-8 py-4">Progress</th>
-                <th className="px-8 py-4">Status</th>
+                <th className="px-4 sm:px-8 py-4 whitespace-nowrap">Candidate Name</th>
+                <th className="px-4 sm:px-8 py-4 hidden md:table-cell">Department</th>
+                <th className="px-4 sm:px-8 py-4 hidden md:table-cell">Mentor</th>
+                <th className="px-4 sm:px-8 py-4 whitespace-nowrap">Progress</th>
+                <th className="px-4 sm:px-8 py-4">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-surface-container">
               {loading ? (
                 Array.from({ length: 4 }).map((_, i) => (
                   <tr key={i}>
-                    <td className="px-8 py-5"><Skeleton className="h-4 w-40" /></td>
-                    <td className="px-8 py-5"><Skeleton className="h-4 w-24" /></td>
-                    <td className="px-8 py-5"><Skeleton className="h-4 w-28" /></td>
-                    <td className="px-8 py-5"><Skeleton className="h-4 w-20" /></td>
-                    <td className="px-8 py-5"><Skeleton className="h-6 w-16 rounded-full" /></td>
+                    <td className="px-4 sm:px-8 py-5"><Skeleton className="h-4 w-40" /></td>
+                    <td className="px-4 sm:px-8 py-5 hidden md:table-cell"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-4 sm:px-8 py-5 hidden md:table-cell"><Skeleton className="h-4 w-28" /></td>
+                    <td className="px-4 sm:px-8 py-5"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-4 sm:px-8 py-5"><Skeleton className="h-6 w-16 rounded-full" /></td>
                   </tr>
                 ))
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={5} className="py-8 text-center text-slate-500 italic font-body">No candidates found.</td></tr>
               ) : filtered.map((c: any) => (
                 <tr key={c.id} className="hover:bg-surface-container-low transition-colors group">
-                  <td className="px-8 py-5">
+                  <td className="px-4 sm:px-8 py-5 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
+                      <div className="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs shrink-0">
                         {c.name.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
@@ -173,17 +173,17 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-8 py-5 text-sm text-slate-600 font-medium font-body">{c.department || '—'}</td>
-                  <td className="px-8 py-5 text-sm text-slate-600 font-body">{c.mentorName}</td>
-                  <td className="px-8 py-5">
+                  <td className="px-4 sm:px-8 py-5 text-sm text-slate-600 font-medium font-body hidden md:table-cell">{c.department || '—'}</td>
+                  <td className="px-4 sm:px-8 py-5 text-sm text-slate-600 font-body hidden md:table-cell">{c.mentorName}</td>
+                  <td className="px-4 sm:px-8 py-5 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="w-20 h-1.5 rounded-full overflow-hidden bg-surface-container">
+                      <div className="w-16 sm:w-20 h-1.5 rounded-full overflow-hidden bg-surface-container shrink-0">
                         <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${c.progress}%` }} />
                       </div>
                       <span className="text-xs font-bold text-slate-600 font-body">{c.progress}%</span>
                     </div>
                   </td>
-                  <td className="px-8 py-5">
+                  <td className="px-4 sm:px-8 py-5">
                     {c.status === 'completed' ? (
                       <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider rounded-full font-body">Certified</span>
                     ) : c.status === 'active' ? (

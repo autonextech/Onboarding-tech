@@ -222,11 +222,11 @@ export default function AdminUsersPage() {
           <table className="w-full text-sm min-w-[700px]">
             <thead>
               <tr className="border-b border-slate-100">
-                <th className="text-left py-3 px-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Name & Email</th>
-                <th className="text-left py-3 px-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Role</th>
-                <th className="text-left py-3 px-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Mentor</th>
-                <th className="text-left py-3 px-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
-                <th className="text-right py-3 px-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</th>
+                <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider text-slate-500 whitespace-nowrap">Name & Email</th>
+                <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider text-slate-500 hidden md:table-cell">Role</th>
+                <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider text-slate-500" style={{ minWidth: '160px' }}>Mentor</th>
+                <th className="text-left py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider text-slate-500 hidden sm:table-cell">Status</th>
+                <th className="text-right py-3 px-4 sm:px-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -234,9 +234,9 @@ export default function AdminUsersPage() {
                 <tr><td colSpan={5} className="py-8 text-center text-slate-500 italic">No users found.</td></tr>
               ) : filteredUsers.map(u => (
                 <tr key={u.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-4 sm:px-6 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                      <div className="h-9 w-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
                         style={{ background: u.role === 'MENTOR' ? 'linear-gradient(135deg, #0EA5E9, #06B6D4)' : '#1d3989' }}>
                         {u.name.split(' ').map((n: string) => n[0]).join('')}
                       </div>
@@ -246,28 +246,28 @@ export default function AdminUsersPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-4 sm:px-6 hidden md:table-cell">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${u.role === 'MENTOR' ? 'bg-cyan-50 text-cyan-700' : u.role === 'ADMIN' ? 'bg-red-50 text-red-700' : 'bg-primary/5 text-primary'}`}>
                       {u.role}
                     </span>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-4 sm:px-6">
                     {u.role === 'CANDIDATE' ? (
                       <select value={u.mentorId || ''} onChange={e => handleAssignMentor(u.id, e.target.value)}
-                        className="text-sm border border-slate-300 rounded-lg px-2 py-1.5 bg-white focus:ring-2 focus:ring-primary outline-none min-w-[140px]">
-                        <option value="">{mentorsError ? '⚠ Failed to load' : 'Unassigned'}</option>
+                        className="text-sm border border-slate-300 rounded-lg px-2 py-1.5 bg-white focus:ring-2 focus:ring-primary outline-none min-w-[140px] w-full max-w-[200px]">
+                        <option value="">{mentorsError ? '⚠ Error' : 'Unassigned'}</option>
                         {mentors.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                       </select>
                     ) : (
                       <span className="text-slate-400 text-xs">—</span>
                     )}
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-4 sm:px-6 hidden sm:table-cell">
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${u.isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'}`}>
                       {u.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-4 px-4 sm:px-6 text-right">
                     <div className="flex items-center justify-end gap-2">
                       {u.role === 'CANDIDATE' && (
                         <button onClick={() => setManagingTeamFor({ id: u.id, name: u.name })} title="Manage Team"

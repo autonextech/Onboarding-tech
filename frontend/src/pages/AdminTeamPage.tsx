@@ -150,14 +150,15 @@ export default function AdminTeamPage() {
 
       {/* Team Table */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="py-3 px-6 text-xs uppercase tracking-wider text-slate-500 font-bold">Colleague</th>
-              <th className="py-3 px-6 text-xs uppercase tracking-wider text-slate-500 font-bold">Department</th>
-              <th className="py-3 px-6 text-xs uppercase tracking-wider text-slate-500 font-bold">Contact Links</th>
-              <th className="py-3 px-6 text-xs uppercase tracking-wider text-slate-500 font-bold text-right">Actions</th>
-            </tr>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px] sm:min-w-full">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200">
+                <th className="py-3 px-4 sm:px-6 text-xs uppercase tracking-wider text-slate-500 font-bold whitespace-nowrap">Colleague</th>
+                <th className="py-3 px-4 sm:px-6 text-xs uppercase tracking-wider text-slate-500 font-bold hidden md:table-cell">Department</th>
+                <th className="py-3 px-4 sm:px-6 text-xs uppercase tracking-wider text-slate-500 font-bold">Contact Links</th>
+                <th className="py-3 px-4 sm:px-6 text-xs uppercase tracking-wider text-slate-500 font-bold text-right">Actions</th>
+              </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {team.length === 0 ? (
@@ -171,7 +172,7 @@ export default function AdminTeamPage() {
             ) : (
               team.map(member => (
                 <tr key={member.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-4 sm:px-6 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shadow-sm shrink-0">
                         {member.name.split(' ').map((n: string) => n[0]).join('').substring(0,2)}
@@ -182,32 +183,34 @@ export default function AdminTeamPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-6">
+                  <td className="py-4 px-4 sm:px-6 hidden md:table-cell">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary border border-primary/20">
                       {member.department}
                     </span>
                   </td>
-                  <td className="py-4 px-6 space-y-1">
-                    {member.email && (
-                      <a href={`mailto:${member.email}`} className="flex items-center gap-2 text-xs text-slate-600 hover:text-primary transition-colors">
-                        <Mail className="h-3 w-3 shrink-0" /> {member.email}
-                      </a>
-                    )}
-                    {member.linkedin && (
-                      <a href={member.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-[#0A66C2] hover:underline transition-colors">
-                        <Globe className="h-3 w-3 shrink-0" /> LinkedIn ↗
-                      </a>
-                    )}
-                    {member.slack && (
-                      <a href={member.slack} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-xs text-[#4A154B] hover:underline transition-colors">
-                        <MessageCircle className="h-3 w-3 shrink-0" /> Slack ↗
-                      </a>
-                    )}
-                    {!member.email && !member.linkedin && !member.slack && (
-                      <span className="text-xs text-slate-400 italic">No contact info</span>
-                    )}
+                  <td className="py-4 px-4 sm:px-6">
+                    <div className="flex sm:flex-col gap-2 sm:gap-1 flex-wrap">
+                      {member.email && (
+                        <a href={`mailto:${member.email}`} className="flex items-center gap-1.5 p-1.5 sm:p-0 rounded-md sm:rounded-none bg-slate-100 sm:bg-transparent text-xs text-slate-600 hover:text-primary transition-colors text-center justify-center min-w-[32px]">
+                          <Mail className="h-4 w-4 sm:h-3 sm:w-3 shrink-0" /> <span className="hidden sm:inline">{member.email}</span>
+                        </a>
+                      )}
+                      {member.linkedin && (
+                        <a href={member.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 p-1.5 sm:p-0 rounded-md sm:rounded-none bg-[#0A66C2]/10 sm:bg-transparent text-xs text-[#0A66C2] hover:underline transition-colors text-center justify-center min-w-[32px]">
+                          <Globe className="h-4 w-4 sm:h-3 sm:w-3 shrink-0" /> <span className="hidden sm:inline">LinkedIn ↗</span>
+                        </a>
+                      )}
+                      {member.slack && (
+                        <a href={member.slack} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 p-1.5 sm:p-0 rounded-md sm:rounded-none bg-[#4A154B]/10 sm:bg-transparent text-xs text-[#4A154B] hover:underline transition-colors text-center justify-center min-w-[32px]">
+                          <MessageCircle className="h-4 w-4 sm:h-3 sm:w-3 shrink-0" /> <span className="hidden sm:inline">Slack ↗</span>
+                        </a>
+                      )}
+                      {!member.email && !member.linkedin && !member.slack && (
+                        <span className="text-xs text-slate-400 italic">No contact info</span>
+                      )}
+                    </div>
                   </td>
-                  <td className="py-4 px-6 text-right">
+                  <td className="py-4 px-4 sm:px-6 text-right">
                     <div className="flex items-center justify-end gap-1">
                       <button onClick={() => openEdit(member)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors" title="Edit">
                         <Pencil className="h-4 w-4" />
@@ -222,6 +225,7 @@ export default function AdminTeamPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

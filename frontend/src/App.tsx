@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store/useStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import LoginPage from './pages/LoginPage';
 import CandidateDashboard from './pages/CandidateDashboard';
@@ -18,13 +18,18 @@ import AdminReportsPage from './pages/AdminReportsPage';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { userName, userRole } = useStore();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
   return (
     <div className="flex h-screen overflow-hidden bg-surface">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <main className="flex-1 overflow-x-hidden overflow-y-auto relative bg-surface">
-        <header className="fixed top-0 right-0 left-0 md:left-72 z-40 bg-white/80 backdrop-blur-xl h-20 flex justify-between items-center px-6 md:px-8 shadow-[0_20px_40px_rgba(15,23,42,0.06)] border-none transition-all">
-          <div className="flex items-center gap-8">
-            <h2 className="text-xl md:text-2xl font-black tracking-tighter text-blue-900 headline-font">Dashboard <span className="hidden sm:inline text-primary/60 text-lg font-bold ml-2">{userRole === 'admin' ? 'Executive Portal' : 'Phase 1'}</span></h2>
+        <header className="fixed top-0 right-0 left-0 md:left-72 z-40 bg-white/80 backdrop-blur-xl h-20 flex justify-between items-center px-4 md:px-8 shadow-[0_20px_40px_rgba(15,23,42,0.06)] border-none transition-all">
+          <div className="flex items-center gap-3 md:gap-8">
+            <button onClick={() => setIsSidebarOpen(true)} className="md:hidden p-2 -ml-2 text-primary hover:bg-slate-100 rounded-lg transition-colors flex items-center justify-center">
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+            <h2 className="text-xl md:text-2xl font-black tracking-tighter text-blue-900 headline-font truncate max-w-[200px] sm:max-w-none">Dashboard <span className="hidden sm:inline text-primary/60 text-lg font-bold ml-2">{userRole === 'admin' ? 'Executive Portal' : 'Phase 1'}</span></h2>
           </div>
           <div className="flex items-center gap-4">
             <div className="h-9 w-9 md:h-10 md:w-10 rounded-full overflow-hidden border-2 border-primary-container bg-primary flex items-center justify-center text-white font-bold text-xs uppercase shadow-md">
@@ -43,7 +48,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 function CleanLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen overflow-hidden bg-surface">
-      <Sidebar />
+      <Sidebar isOpen={false} />
       <main className="flex-1 overflow-x-hidden overflow-y-auto relative bg-surface">
         {children}
       </main>

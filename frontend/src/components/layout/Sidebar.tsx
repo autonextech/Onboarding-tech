@@ -1,7 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useStore } from '../../store/useStore';
 
-export default function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const { userName, userRole, logout } = useStore();
   const navigate = useNavigate();
 
@@ -29,15 +34,35 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="hidden md:flex flex-col h-screen w-72 left-0 top-0 bg-primary py-8 px-6 space-y-4 z-50 flex-shrink-0">
-      <div className="mb-10 px-2">
-        <img src="/logo.png" alt="Autonex" className="h-8 brightness-0 invert" />
-        <p className="text-blue-100/60 text-[10px] uppercase tracking-widest font-bold mt-1">
-          {userRole === 'admin' ? 'Executive Portal' : 'Onboarding Phase 1'}
-        </p>
-      </div>
+    <>
+      {/* Mobile Backdrop */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+          onClick={onClose} 
+        />
+      )}
+      
+      <aside 
+        className={`fixed md:relative top-0 left-0 h-screen w-72 bg-primary py-8 px-6 space-y-4 z-50 flex-shrink-0 flex flex-col transition-transform duration-300 md:transition-none ${
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        }`}
+      >
+        <div className="mb-10 px-2 flex justify-between items-center">
+          <div>
+            <img src="/logo.png" alt="Autonex" className="h-8 brightness-0 invert" />
+            <p className="text-blue-100/60 text-[10px] uppercase tracking-widest font-bold mt-1">
+              {userRole === 'admin' ? 'Executive Portal' : 'Onboarding Phase 1'}
+            </p>
+          </div>
+          {onClose && (
+            <button onClick={onClose} className="md:hidden text-white/50 hover:text-white p-1 rounded-md transition-colors">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          )}
+        </div>
 
-      <nav className="flex-1 space-y-1">
+        <nav className="flex-1 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
           <NavLink 
             key={item.name} 
@@ -96,5 +121,6 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }

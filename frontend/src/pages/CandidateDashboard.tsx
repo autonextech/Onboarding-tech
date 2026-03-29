@@ -64,13 +64,15 @@ export default function CandidateDashboard() {
             </h1>
           </div>
           
-          <div className="flex items-center gap-4 bg-surface-container-lowest p-4 px-6 rounded-xl border border-surface-container shadow-sm">
-            <span className="material-symbols-outlined text-3xl text-primary/40">military_tech</span>
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-outline">Primary Advisor</p>
-              <p className="text-sm font-bold text-on-surface font-body">{stats.mentorName}</p>
+          <div className="flex items-center justify-between md:justify-start gap-4 bg-surface-container-lowest p-4 px-6 rounded-xl border border-surface-container shadow-sm w-full md:w-auto">
+            <div className="flex items-center gap-4">
+              <span className="material-symbols-outlined text-3xl text-primary/40 shrink-0">military_tech</span>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-outline">Primary Advisor</p>
+                <p className="text-sm font-bold text-on-surface font-body break-words">{stats.mentorName}</p>
+              </div>
             </div>
-            <button onClick={() => navigate('/mentorship')} className="ml-4 h-8 w-8 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-primary/10 transition-colors cursor-pointer material-symbols-outlined text-sm">
+            <button onClick={() => navigate('/mentorship')} className="md:ml-4 h-8 w-8 shrink-0 rounded-full bg-surface-container flex items-center justify-center text-primary hover:bg-primary/10 transition-colors cursor-pointer material-symbols-outlined text-sm">
               arrow_forward
             </button>
           </div>

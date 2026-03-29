@@ -82,13 +82,13 @@ export default function LoginPage() {
         </section>
 
         {/* Right Section: FIXED LOGIN BOX DESIGN */}
-        <section className="w-full lg:w-2/5 bg-surface-container-low flex flex-col items-center justify-center p-8 lg:p-12 relative">
-          <div className="lg:hidden absolute top-12 left-12">
+        <section className="w-full lg:w-2/5 bg-surface-container-low flex flex-col items-center justify-center p-4 sm:p-8 lg:p-12 py-24 relative overflow-y-auto">
+          <div className="lg:hidden absolute top-8 left-6 sm:top-12 sm:left-12">
             <img src="/logo.png" alt="Autonex" className="h-8" />
           </div>
           
           {/* Enhanced Login Card - Using your original variables but adding depth */}
-          <div className="w-full max-w-md bg-white p-10 lg:p-12 rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-outline-variant/20">
+          <div className="w-full max-w-md bg-white p-6 sm:p-10 lg:p-12 rounded-2xl shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] border border-outline-variant/20">
             <div className="mb-12">
               <h2 className="font-headline font-bold text-4xl text-primary tracking-tight">Portal Access</h2>
               <p className="text-on-surface-variant font-medium text-sm mt-3">Secure Gateway for Executive Members</p>
@@ -107,7 +107,7 @@ export default function LoginPage() {
                   Corporate Email
                 </label>
                 <input 
-                  className="w-full bg-white border-b-2 border-outline-variant/30 py-3 px-1 focus:ring-0 focus:border-secondary transition-all outline-none font-body text-on-surface placeholder:text-slate-300 text-lg" 
+                  className="w-full bg-white border-b-2 border-outline-variant/30 py-3 px-1 focus:ring-0 focus:border-secondary transition-all outline-none font-body text-on-surface placeholder:text-slate-300 text-base" 
                   placeholder="executive@autonex.ai" 
                   type="email"
                   value={email}
@@ -125,7 +125,7 @@ export default function LoginPage() {
                   <a className="font-label text-[10px] uppercase tracking-widest text-outline hover:text-secondary transition-colors font-bold" href="#">Recover</a>
                 </div>
                 <input 
-                  className="w-full bg-white border-b-2 border-outline-variant/30 py-3 px-1 focus:ring-0 focus:border-secondary transition-all outline-none font-body text-on-surface placeholder:text-slate-300 text-lg" 
+                  className="w-full bg-white border-b-2 border-outline-variant/30 py-3 px-1 focus:ring-0 focus:border-secondary transition-all outline-none font-body text-on-surface placeholder:text-slate-300 text-base" 
                   placeholder="••••••••••••" 
                   type="password"
                   value={password}
@@ -154,7 +154,7 @@ export default function LoginPage() {
             </form>
             
             {/* Footer Context */}
-            <div className="mt-16 pt-8 border-t border-outline-variant/10 flex items-center justify-between">
+            <div className="mt-8 sm:mt-16 pt-8 border-t border-outline-variant/10 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full bg-secondary/5 flex items-center justify-center">
                   <span className="material-symbols-outlined text-secondary text-xl font-bold">lock</span>
@@ -167,7 +167,7 @@ export default function LoginPage() {
             </div>
           </div>
           
-          <footer className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full px-8 flex justify-between items-center max-w-md opacity-40">
+          <footer className="absolute bottom-6 sm:bottom-8 left-1/2 -translate-x-1/2 w-full px-6 sm:px-8 flex justify-between items-center max-w-md opacity-40">
             <span className="font-label text-[9px] uppercase tracking-[0.2em] text-on-surface font-bold">© 2024 AUTONEX</span>
             <div className="flex gap-6">
               <a className="font-label text-[9px] uppercase tracking-[0.2em] text-on-surface hover:text-secondary transition-colors" href="#">Privacy</a>

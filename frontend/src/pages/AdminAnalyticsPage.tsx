@@ -85,7 +85,7 @@ export default function AdminAnalyticsPage() {
         {kpis.map((kpi: any, idx: number) => {
           const Icon = kpi.icon;
           return (
-            <motion.div key={kpi.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container p-6">
+            <motion.div key={kpi.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-surface-container-lowest p-5 sm:p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container">
               <div className="flex items-start justify-between">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl flex-shrink-0" style={{ background: kpi.bg, color: kpi.color }}>
                   <Icon className="h-6 w-6" />
@@ -103,10 +103,10 @@ export default function AdminAnalyticsPage() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="bg-surface-container-lowest p-4 sm:p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container min-w-0 overflow-hidden">
           <h3 className="text-lg font-bold text-slate-900 mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>Weekly Completions</h3>
-          <div className="h-72">
+          <div className="h-64 sm:h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weeklyData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
@@ -119,12 +119,12 @@ export default function AdminAnalyticsPage() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-surface-container-lowest p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container p-6">
-          <h3 className="text-lg font-bold text-slate-900 mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>Progress Distribution</h3>
-          <div className="h-72 flex items-center justify-center">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-surface-container-lowest p-4 sm:p-6 rounded-xl shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container min-w-0 overflow-hidden">
+          <h3 className="text-lg font-bold text-slate-900 mb-2 sm:mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>Progress Distribution</h3>
+          <div className="h-64 sm:h-72 w-full flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie data={distribution} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
+                <Pie data={distribution} cx="50%" cy="50%" innerRadius={window.innerWidth < 640 ? 40 : 60} outerRadius={window.innerWidth < 640 ? 80 : 100} paddingAngle={5} dataKey="value">
                   {distribution.map((_entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="transparent" />
                   ))}
@@ -133,11 +133,11 @@ export default function AdminAnalyticsPage() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex justify-center gap-4 mt-2">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mt-2">
             {distribution.map((entry: any, index: number) => (
-              <div key={entry.name} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                <span className="text-xs font-semibold text-slate-600">{entry.name}</span>
+              <div key={entry.name} className="flex items-center gap-1.5 sm:gap-2">
+                <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full shrink-0" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                <span className="text-[10px] sm:text-xs font-semibold text-slate-600 whitespace-nowrap">{entry.name}</span>
               </div>
             ))}
           </div>
