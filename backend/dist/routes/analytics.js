@@ -6,9 +6,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const prisma_1 = __importDefault(require("../lib/prisma"));
 const router = (0, express_1.Router)();
+// 30-second TTL cache for analytics
+const cache = new Map();
+const CACHE_TTL = 30000;
+const getCached = (key) => {
+    const entry = cache.get(key);
+    if (entry && Date.now() - entry.ts < CACHE_TTL)
+        return entry.data;
+    return null;
+};
+const setCache = (key, data) => cache.set(key, { data, ts: Date.now() });
 // OPTIMIZATION: Parallel queries for the analytics dashboard
 router.get('/dashboard', async (req, res) => {
     try {
+        const cached = getCached('dashboard');
+        if (cached)
+            return res.json(cached);
         // Run ALL count/find queries in parallel instead of sequentially
         const [totalCandidates, totalModules, recentCandidates, progressData] = await Promise.all([
             prisma_1.default.user.count({ where: { role: 'CANDIDATE' } }),
@@ -39,15 +52,9 @@ router.get('/dashboard', async (req, res) => {
             if (avgProgress > 100)
                 avgProgress = 100;
         }
-        res.json({
-            metrics: {
-                totalCandidates,
-                avgProgress,
-                modulesCompleted: progressData.length,
-                totalModules
-            },
-            recentCandidates
-        });
+        const response = { metrics: { totalCandidates, avgProgress, modulesCompleted: progressData.length, totalModules }, recentCandidates };
+        setCache('dashboard', response);
+        res.json(response);
     }
     catch (error) {
         console.error('Error fetching dashboard analytics:', error);
@@ -57,6 +64,9 @@ router.get('/dashboard', async (req, res) => {
 // GET /api/analytics/full for AdminAnalyticsPage
 router.get('/full', async (req, res) => {
     try {
+        const cached = getCached('full');
+        if (cached)
+            return res.json(cached);
         const candidates = await prisma_1.default.user.findMany({
             where: { role: 'CANDIDATE' },
             include: { progress: true, quizAttempts: true }
@@ -138,7 +148,7 @@ router.get('/full', async (req, res) => {
             { name: 'Sat', completion: latestDays[5] },
             { name: 'Sun', completion: latestDays[6] },
         ];
-        res.json({
+        const result = {
             kpis: [
                 { label: 'Avg Quiz Score', value: `${avgQuizScore}%`, trend: '+2.4%' },
                 { label: 'Completion Rate', value: `${completionRate}%`, trend: '+5.1%' },
@@ -146,7 +156,9 @@ router.get('/full', async (req, res) => {
             ],
             weeklyData: weekArray,
             distribution: distArray
-        });
+        };
+        setCache('full', result);
+        res.json(result);
     }
     catch (err) {
         console.error('Error fetching full analytics:', err);

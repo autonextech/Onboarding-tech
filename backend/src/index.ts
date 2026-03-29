@@ -11,6 +11,7 @@ import progressRouter from './routes/progress';
 import quizRouter from './routes/quiz';
 import reportsRouter from './routes/reports';
 import teamRouter from './routes/team';
+import adminRouter from './routes/admin';
 
 dotenv.config();
 
@@ -32,12 +33,11 @@ app.use('/api/progress', progressRouter);
 app.use('/api/quiz', quizRouter);
 app.use('/api/reports', reportsRouter);
 app.use('/api/team', teamRouter);
+app.use('/api/admin', adminRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({ 
-    status: 'success', 
-    message: 'Backend API is running correctly.',
-    database: 'mocked',
+    status: 'ok',
     timestamp: new Date().toISOString()
   });
 });

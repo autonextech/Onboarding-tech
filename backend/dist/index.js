@@ -16,6 +16,7 @@ const progress_1 = __importDefault(require("./routes/progress"));
 const quiz_1 = __importDefault(require("./routes/quiz"));
 const reports_1 = __importDefault(require("./routes/reports"));
 const team_1 = __importDefault(require("./routes/team"));
+const admin_1 = __importDefault(require("./routes/admin"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
@@ -33,11 +34,10 @@ app.use('/api/progress', progress_1.default);
 app.use('/api/quiz', quiz_1.default);
 app.use('/api/reports', reports_1.default);
 app.use('/api/team', team_1.default);
+app.use('/api/admin', admin_1.default);
 app.get('/api/health', (req, res) => {
     res.json({
-        status: 'success',
-        message: 'Backend API is running correctly.',
-        database: 'mocked',
+        status: 'ok',
         timestamp: new Date().toISOString()
     });
 });

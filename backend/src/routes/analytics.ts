@@ -3,9 +3,21 @@ import prisma from '../lib/prisma';
 
 const router = Router();
 
+// 30-second TTL cache for analytics
+const cache: Map<string, { data: any; ts: number }> = new Map();
+const CACHE_TTL = 30_000;
+const getCached = (key: string) => {
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.ts < CACHE_TTL) return entry.data;
+  return null;
+};
+const setCache = (key: string, data: any) => cache.set(key, { data, ts: Date.now() });
+
 // OPTIMIZATION: Parallel queries for the analytics dashboard
 router.get('/dashboard', async (req, res) => {
   try {
+    const cached = getCached('dashboard');
+    if (cached) return res.json(cached);
     // Run ALL count/find queries in parallel instead of sequentially
     const [totalCandidates, totalModules, recentCandidates, progressData] = await Promise.all([
       prisma.user.count({ where: { role: 'CANDIDATE' } }),
@@ -37,15 +49,9 @@ router.get('/dashboard', async (req, res) => {
       if (avgProgress > 100) avgProgress = 100;
     }
 
-    res.json({
-      metrics: {
-        totalCandidates,
-        avgProgress,
-        modulesCompleted: progressData.length,
-        totalModules
-      },
-      recentCandidates
-    });
+    const response = { metrics: { totalCandidates, avgProgress, modulesCompleted: progressData.length, totalModules }, recentCandidates };
+    setCache('dashboard', response);
+    res.json(response);
   } catch (error) {
     console.error('Error fetching dashboard analytics:', error);
     res.status(500).json({ error: 'Failed to fetch analytics' });
@@ -55,6 +61,8 @@ router.get('/dashboard', async (req, res) => {
 // GET /api/analytics/full for AdminAnalyticsPage
 router.get('/full', async (req, res) => {
   try {
+    const cached = getCached('full');
+    if (cached) return res.json(cached);
     const candidates = await (prisma.user as any).findMany({
       where: { role: 'CANDIDATE' },
       include: { progress: true, quizAttempts: true }
@@ -145,7 +153,7 @@ router.get('/full', async (req, res) => {
       { name: 'Sun', completion: latestDays[6] },
     ];
 
-    res.json({
+    const result = {
       kpis: [
         { label: 'Avg Quiz Score', value: `${avgQuizScore}%`, trend: '+2.4%' },
         { label: 'Completion Rate', value: `${completionRate}%`, trend: '+5.1%' },
@@ -153,7 +161,9 @@ router.get('/full', async (req, res) => {
       ],
       weeklyData: weekArray,
       distribution: distArray
-    });
+    };
+    setCache('full', result);
+    res.json(result);
   } catch (err) {
     console.error('Error fetching full analytics:', err);
     res.status(500).json({ error: 'Failed to fetch full analytics' });

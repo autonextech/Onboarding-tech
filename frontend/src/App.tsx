@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store/useStore';
+import { useEffect } from 'react';
 import Sidebar from './components/layout/Sidebar';
 import LoginPage from './pages/LoginPage';
 import CandidateDashboard from './pages/CandidateDashboard';
@@ -67,11 +68,21 @@ function AdminRoute({ children, layout = 'app' }: { children: React.ReactNode, l
 }
 
 function App() {
+  // Keep-alive ping every 4 minutes to prevent Railway cold starts
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const ping = () => fetch(`${API_URL}/api/health`).catch(() => {});
+    ping(); // ping immediately on mount
+    const id = setInterval(ping, 4 * 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
         {/* Public Login Page */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin/login" element={<LoginPage />} />
 
         {/* Candidate & Mentor Routes */}
         <Route path="/dashboard" element={<CandidateRoute><CandidateDashboard /></CandidateRoute>} />
