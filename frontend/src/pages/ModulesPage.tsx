@@ -14,7 +14,7 @@ export default function ModulesPage() {
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`${API_URL}/api/candidates/${userId}/dashboard`)
+    fetch(`${API_URL}/api/candidates/${userId}/dashboard?t=${Date.now()}`, { cache: 'no-store' })
       .then(r => r.json())
       .then(data => setModules(data.modules || []))
       .catch(console.error)

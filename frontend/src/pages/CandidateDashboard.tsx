@@ -24,7 +24,7 @@ export default function CandidateDashboard() {
       return;
     }
     
-    fetch(`${API_URL}/api/candidates/${userId}/dashboard`)
+    fetch(`${API_URL}/api/candidates/${userId}/dashboard?t=${Date.now()}`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         const realModules = data.modules.map((m: any) => ({

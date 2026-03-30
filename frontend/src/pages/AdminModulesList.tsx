@@ -21,7 +21,7 @@ export default function AdminModulesList() {
 
   const fetchModules = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/modules`);
+      const res = await fetch(`${API_URL}/api/modules?t=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Failed to fetch modules');
       const data = await res.json();
       setModules(data);

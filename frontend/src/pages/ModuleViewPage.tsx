@@ -180,14 +180,27 @@ export default function ModuleViewPage() {
                         <h4 className="text-xs font-bold text-outline uppercase tracking-widest mb-4">Required Documents</h4>
                         <div className="space-y-3">
                           {currentSection.documents.map((doc: any) => (
-                            <a key={doc.id} href={doc.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-4 p-5 bg-surface-container-lowest border border-surface-container hover:border-primary/20 rounded-xl transition-all group overflow-hidden relative shadow-sm">
-                              <span className="material-symbols-outlined text-secondary text-2xl group-hover:scale-110 transition-transform">article</span>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-bold text-on-surface truncate">{doc.title}</p>
-                                <p className="text-[10px] text-outline uppercase tracking-wider mt-0.5">{doc.type}</p>
+                            <div key={doc.id} className="mt-4 flex flex-col">
+                              <div className="flex items-center space-x-4 p-5 bg-surface-container-lowest border border-surface-container rounded-t-xl group shadow-sm z-10 relative">
+                                <span className="material-symbols-outlined text-secondary text-2xl group-hover:scale-110 transition-transform">article</span>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-bold text-on-surface truncate">{doc.title}</p>
+                                  <p className="text-[10px] text-outline uppercase tracking-wider mt-0.5">{doc.type}</p>
+                                </div>
+                                <a href={doc.url} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 bg-primary/10 text-primary hover:bg-primary/20 text-xs font-bold uppercase rounded-md transition-colors flex items-center gap-1">
+                                  Open <span className="material-symbols-outlined text-sm">open_in_new</span>
+                                </a>
                               </div>
-                              <span className="material-symbols-outlined text-sm text-outline group-hover:text-primary transition-colors">open_in_new</span>
-                            </a>
+                              <div className="w-full aspect-video md:aspect-[4/3] bg-surface-container-highest rounded-b-xl overflow-hidden border border-t-0 border-surface-container shadow-sm relative">
+                                <iframe 
+                                  src={getEmbeddedDriveUrl(doc.url)} 
+                                  className="absolute inset-0 w-full h-full"
+                                  allow="autoplay" 
+                                  allowFullScreen
+                                  title={`Document: ${doc.title}`}
+                                />
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
