@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import prisma from '../lib/prisma'; // ✅ Use shared singleton - not a new PrismaClient
+import multer from 'multer';
+import * as XLSX from 'xlsx';
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Simple in-memory TTL cache (30 seconds)
 let teamCache: { data: any; ts: number } | null = null;
@@ -21,6 +24,90 @@ router.get('/', async (req, res) => {
     res.json(team);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch team members' });
+  }
+});
+
+// GET /api/team/sample-excel — Download sample Excel template for bulk import
+router.get('/sample-excel', (req, res) => {
+  const wb = XLSX.utils.book_new();
+  const data = [
+    ['name', 'role', 'department', 'email', 'linkedin', 'slack'],
+    ['Emily Rodriguez', 'HR Business Partner', 'Human Resources', 'emily@company.com', 'https://linkedin.com/in/emilyrodriguez', 'https://workspace.slack.com/team/U123456'],
+    ['Raj Malhotra', 'Engineering Manager', 'Engineering', 'raj@company.com', '', ''],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [
+    { wch: 24 },
+    { wch: 24 },
+    { wch: 22 },
+    { wch: 28 },
+    { wch: 42 },
+    { wch: 42 }
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, 'Team Members');
+  const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+  res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  res.setHeader('Content-Disposition', 'attachment; filename=autonex_team_sample.xlsx');
+  res.send(buf);
+});
+
+// POST /api/team/bulk-import — Import team members from Excel
+router.post('/bulk-import', upload.single('file'), async (req: any, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+    const wb = XLSX.read(req.file.buffer, { type: 'buffer' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows: any[] = XLSX.utils.sheet_to_json(ws, { defval: '' });
+
+    if (rows.length === 0) {
+      return res.status(400).json({ error: 'Empty spreadsheet' });
+    }
+
+    const errors: string[] = [];
+    const membersToCreate: Array<{
+      name: string;
+      role: string;
+      department: string;
+      email: string | null;
+      linkedin: string | null;
+      slack: string | null;
+    }> = [];
+
+    for (const row of rows) {
+      const name = row.name?.toString().trim();
+      const role = row.role?.toString().trim();
+      const department = row.department?.toString().trim();
+      const email = row.email?.toString().trim() || null;
+      const linkedin = row.linkedin?.toString().trim() || null;
+      const slack = row.slack?.toString().trim() || null;
+
+      if (!name || !role || !department) {
+        errors.push(`Skipped row: name, role, and department are required`);
+        continue;
+      }
+
+      membersToCreate.push({ name, role, department, email, linkedin, slack });
+    }
+
+    if (membersToCreate.length === 0) {
+      return res.status(400).json({ error: 'No valid rows found', errors });
+    }
+
+    await (prisma as any).teamMember.createMany({
+      data: membersToCreate
+    });
+
+    teamCache = null;
+    res.json({
+      message: `Import complete: ${membersToCreate.length} created, ${errors.length} skipped`,
+      created: membersToCreate.length,
+      skipped: errors.length,
+      errors
+    });
+  } catch (error) {
+    console.error('Team bulk import error:', error);
+    res.status(500).json({ error: 'Failed to process file' });
   }
 });
 

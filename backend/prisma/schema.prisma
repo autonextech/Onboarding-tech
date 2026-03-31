@@ -48,6 +48,7 @@ model Section {
   description   String
   videoUrl      String?
   videoDuration String?
+  quizPassingScore Int         @default(0)
   order         Int            @default(0)
   documents     Document[]
   questions     QuizQuestion[]

@@ -39,6 +39,7 @@ export default function AdminModulesBuilder() {
           description: s.description || '',
           videoUrl: s.videoUrl || '',
           videoDuration: s.videoDuration || '',
+          quizPassingScore: s.quizPassingScore ?? 0,
           document: s.documents?.[0] ? {
             title: s.documents[0].title,
             type: s.documents[0].type,
@@ -71,6 +72,7 @@ export default function AdminModulesBuilder() {
       description: '',
       videoUrl: '',
       videoDuration: '',
+      quizPassingScore: 0,
       questions: []
     }]);
   };

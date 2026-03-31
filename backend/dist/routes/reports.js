@@ -34,32 +34,45 @@ async function getReportsData() {
         }
         let totalProgress = 0;
         let totalScore = 0;
+        let totalAttemptedQuestions = 0;
+        let totalCorrectAnswers = 0;
+        let totalAvailableQuestions = 0;
         const moduleStats = modules.map((mod) => {
             const totalSections = mod.sections.length;
             const completedSections = progressByModule.get(mod.id) || 0;
             const progressPercent = totalSections > 0 ? Math.round((completedSections / totalSections) * 100) : 0;
             let correctAnswers = 0;
+            let attemptedQuestions = 0;
             let totalQuestions = 0;
             mod.sections.forEach((sec) => {
                 totalQuestions += sec.questions.length;
                 sec.questions.forEach((q) => {
                     const attempt = attemptsByQuestion.get(q.id);
-                    if (attempt && attempt.isCorrect)
-                        correctAnswers++;
+                    if (attempt) {
+                        attemptedQuestions++;
+                        if (attempt.isCorrect)
+                            correctAnswers++;
+                    }
                 });
             });
-            const scorePercent = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+            totalAvailableQuestions += totalQuestions;
+            totalAttemptedQuestions += attemptedQuestions;
+            totalCorrectAnswers += correctAnswers;
+            const scorePercent = attemptedQuestions > 0 ? Math.round((correctAnswers / attemptedQuestions) * 100) : 0;
             return {
                 moduleId: mod.id,
                 moduleTitle: mod.title,
                 progress: progressPercent,
-                score: scorePercent
+                score: scorePercent,
+                attemptedQuestions,
+                totalQuestions,
+                correctAnswers
             };
         });
         if (moduleStats.length > 0) {
             totalProgress = Math.round(moduleStats.reduce((acc, curr) => acc + curr.progress, 0) / moduleStats.length);
-            totalScore = Math.round(moduleStats.reduce((acc, curr) => acc + curr.score, 0) / moduleStats.length);
         }
+        totalScore = totalAttemptedQuestions > 0 ? Math.round((totalCorrectAnswers / totalAttemptedQuestions) * 100) : 0;
         return {
             userId: candidate.id,
             name: candidate.name,
@@ -67,6 +80,9 @@ async function getReportsData() {
             department: candidate.department || 'Unassigned',
             overallProgress: totalProgress,
             overallScore: totalScore,
+            attemptedQuestions: totalAttemptedQuestions,
+            correctAnswers: totalCorrectAnswers,
+            totalQuestions: totalAvailableQuestions,
             moduleStats
         };
     });
@@ -87,9 +103,9 @@ router.get('/', async (req, res) => {
 router.get('/export', async (req, res) => {
     try {
         const reports = await getReportsData();
-        let csv = 'Candidate Name,Email,Department,Overall Progress %,Overall MCQ Score %\n';
+        let csv = 'Candidate Name,Email,Department,Overall Progress %,Overall MCQ Score %,Correct Answers,Attempted Questions,Total Questions\n';
         reports.forEach((r) => {
-            csv += `"${r.name}","${r.email}","${r.department}",${r.overallProgress},${r.overallScore}\n`;
+            csv += `"${r.name}","${r.email}","${r.department}",${r.overallProgress},${r.overallScore},${r.correctAnswers},${r.attemptedQuestions},${r.totalQuestions}\n`;
         });
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', 'attachment; filename=autonex_candidates_report.csv');

@@ -42,6 +42,7 @@ router.post('/', async (req, res) => {
             description: sec.description,
             videoUrl: sec.videoUrl || null,
             videoDuration: sec.videoDuration || null,
+            quizPassingScore: Math.max(0, Math.min(100, Number(sec.quizPassingScore) || 0)),
             order: idx,
             documents: sec.document ? {
               create: [
@@ -110,6 +111,7 @@ router.put('/:id', async (req, res) => {
             description: sec.description,
             videoUrl: sec.videoUrl || null,
             videoDuration: sec.videoDuration || null,
+            quizPassingScore: Math.max(0, Math.min(100, Number(sec.quizPassingScore) || 0)),
             order: idx,
             documents: sec.document ? {
               create: [{
@@ -243,4 +245,3 @@ router.post('/:moduleId/sections/:sectionId/import-questions', async (req, res) 
 });
 
 export default router;
-

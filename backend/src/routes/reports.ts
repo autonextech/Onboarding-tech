@@ -34,6 +34,9 @@ async function getReportsData() {
 
     let totalProgress = 0;
     let totalScore = 0;
+    let totalAttemptedQuestions = 0;
+    let totalCorrectAnswers = 0;
+    let totalAvailableQuestions = 0;
 
     const moduleStats = modules.map((mod: any) => {
       const totalSections = mod.sections.length;
@@ -41,30 +44,42 @@ async function getReportsData() {
       const progressPercent = totalSections > 0 ? Math.round((completedSections / totalSections) * 100) : 0;
 
       let correctAnswers = 0;
+      let attemptedQuestions = 0;
       let totalQuestions = 0;
 
       mod.sections.forEach((sec: any) => {
         totalQuestions += sec.questions.length;
         sec.questions.forEach((q: any) => {
           const attempt = attemptsByQuestion.get(q.id);
-          if (attempt && attempt.isCorrect) correctAnswers++;
+          if (attempt) {
+            attemptedQuestions++;
+            if (attempt.isCorrect) correctAnswers++;
+          }
         });
       });
 
-      const scorePercent = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+      totalAvailableQuestions += totalQuestions;
+      totalAttemptedQuestions += attemptedQuestions;
+      totalCorrectAnswers += correctAnswers;
+
+      const scorePercent = attemptedQuestions > 0 ? Math.round((correctAnswers / attemptedQuestions) * 100) : 0;
 
       return {
         moduleId: mod.id,
         moduleTitle: mod.title,
         progress: progressPercent,
-        score: scorePercent
+        score: scorePercent,
+        attemptedQuestions,
+        totalQuestions,
+        correctAnswers
       };
     });
 
     if (moduleStats.length > 0) {
       totalProgress = Math.round(moduleStats.reduce((acc: number, curr: any) => acc + curr.progress, 0) / moduleStats.length);
-      totalScore = Math.round(moduleStats.reduce((acc: number, curr: any) => acc + curr.score, 0) / moduleStats.length);
     }
+
+    totalScore = totalAttemptedQuestions > 0 ? Math.round((totalCorrectAnswers / totalAttemptedQuestions) * 100) : 0;
 
     return {
       userId: candidate.id,
@@ -73,6 +88,9 @@ async function getReportsData() {
       department: candidate.department || 'Unassigned',
       overallProgress: totalProgress,
       overallScore: totalScore,
+      attemptedQuestions: totalAttemptedQuestions,
+      correctAnswers: totalCorrectAnswers,
+      totalQuestions: totalAvailableQuestions,
       moduleStats
     };
   });
@@ -96,9 +114,15 @@ router.get('/export', async (req, res) => {
   try {
     const reports = await getReportsData();
 
-    let csv = 'Candidate Name,Email,Department,Overall Progress %,Overall MCQ Score %\n';
+    let csv = 'Candidate Name,Email,Department,Overall Progress %,Overall Quiz Score %,Correct Answers,Total Questions,Module,Module Progress %,Module Score %,Module Correct,Module Total Qs\n';
     reports.forEach((r: any) => {
-      csv += `"${r.name}","${r.email}","${r.department}",${r.overallProgress},${r.overallScore}\n`;
+      if (r.moduleStats && r.moduleStats.length > 0) {
+        r.moduleStats.forEach((ms: any) => {
+          csv += `"${r.name}","${r.email}","${r.department}",${r.overallProgress},${r.overallScore},${r.correctAnswers},${r.totalQuestions},"${ms.moduleTitle}",${ms.progress},${ms.score},${ms.correctAnswers},${ms.totalQuestions}\n`;
+        });
+      } else {
+        csv += `"${r.name}","${r.email}","${r.department}",${r.overallProgress},${r.overallScore},${r.correctAnswers},${r.totalQuestions},,,,\n`;
+      }
     });
 
     res.setHeader('Content-Type', 'text/csv');

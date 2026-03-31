@@ -20,6 +20,7 @@ export interface SectionData {
   description: string;
   videoUrl: string;
   videoDuration: string;
+  quizPassingScore: number;
   document?: SectionDocument;
   questions: QuizQuestionData[];
 }
@@ -153,6 +154,20 @@ export default function ModuleSectionCard({ index, section, onChange, onRemove }
               className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:border-purple-500 focus:outline-none placeholder-slate-400"
               placeholder="e.g. 15 min" />
           </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Quiz Passing Marks (%)</label>
+          <input
+            type="number"
+            min={0}
+            max={100}
+            value={section.quizPassingScore}
+            onChange={e => updateField('quizPassingScore', Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
+            className="w-full md:w-56 px-3 py-2 border border-slate-300 rounded-md text-sm focus:ring-2 focus:border-purple-500 focus:outline-none placeholder-slate-400"
+            placeholder="0"
+          />
+          <p className="text-xs text-slate-400 mt-1">Set `0` if you do not want a minimum passing score for this quiz.</p>
         </div>
 
         {/* Document Section — Real Inputs */}

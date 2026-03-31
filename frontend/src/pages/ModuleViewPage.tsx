@@ -84,16 +84,42 @@ export default function ModuleViewPage() {
         body: JSON.stringify({ userId, sectionId, answers })
       });
       const result = await res.json();
-      setQuizSubmitted({ ...quizSubmitted, [sectionId]: result });
-      handleMarkComplete(sectionId);
+      const passingScore = Math.max(0, Math.min(100, Number(currentSection.quizPassingScore) || 0));
+      const passed = result.score >= passingScore;
+      setQuizSubmitted({
+        ...quizSubmitted,
+        [sectionId]: {
+          ...result,
+          passingScore,
+          passed
+        }
+      });
+
+      if (passed) {
+        handleMarkComplete(sectionId);
+      }
     } catch (e) {
       console.error(e);
     }
   };
 
+  const handleRetakeQuiz = (sectionId: string) => {
+    const nextAnswers = { ...selectedAnswers };
+    currentSection?.questions?.forEach((q: any) => {
+      delete nextAnswers[q.id];
+    });
+    setSelectedAnswers(nextAnswers);
+
+    const nextSubmitted = { ...quizSubmitted };
+    delete nextSubmitted[sectionId];
+    setQuizSubmitted(nextSubmitted);
+  };
+
   const totalSections = moduleData.sections.length;
   const totalCompleted = completedSections.size;
   const overallProgress = totalSections === 0 ? 0 : Math.round((totalCompleted / totalSections) * 100);
+  const currentPassingScore = Math.max(0, Math.min(100, Number(currentSection?.quizPassingScore) || 0));
+  const answeredCurrentQuestions = currentSection?.questions?.filter((q: any) => selectedAnswers[q.id] !== undefined).length || 0;
 
   return (
     <div className="flex flex-col xl:flex-row min-h-full bg-surface">
@@ -171,8 +197,7 @@ export default function ModuleViewPage() {
                   </section>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                  <div className="lg:col-span-2 space-y-6 text-on-surface-variant leading-relaxed text-lg font-body">
+                <div className="space-y-6 text-on-surface-variant leading-relaxed text-lg font-body">
                     <p>{currentSection.description}</p>
                     
                     {currentSection.documents?.length > 0 && (
@@ -205,24 +230,6 @@ export default function ModuleViewPage() {
                         </div>
                       </div>
                     )}
-                  </div>
-
-                  <aside className="lg:col-span-1">
-                    <div className="bg-surface-container-low rounded-xl p-8 border-l-4 border-secondary shadow-sm relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-full"></div>
-                      <h3 className="font-bold text-on-surface mb-4 text-xl tracking-tight headline-font">Executive Briefing</h3>
-                      <p className="text-sm text-on-surface-variant leading-relaxed mb-6 italic">"True authority in complex systems isn't about control—it's about the clarity of the underlying structure."</p>
-                      <div className="space-y-4 relative z-10">
-                        <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-outline">
-                          <span>Significance</span>
-                          <span className="text-primary">High</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-surface-variant rounded-full overflow-hidden">
-                          <div className="h-full bg-primary w-3/4 rounded-full"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </aside>
                 </div>
               </div>
             )}
@@ -231,19 +238,43 @@ export default function ModuleViewPage() {
               <section className="bg-surface-container-lowest rounded-2xl p-8 md:p-12 mb-12 shadow-[0_20px_40px_rgba(15,23,42,0.06)] border border-surface-container pb-12 animate-in slide-in-from-right-4 duration-500">
                 <div className="flex items-center space-x-3 mb-8 border-b border-surface-container-high pb-6">
                   <span className="material-symbols-outlined text-tertiary-container text-3xl">quiz</span>
-                  <h2 className="text-2xl font-bold tracking-tight headline-font">Knowledge Check</h2>
+                  <div>
+                    <h2 className="text-2xl font-bold tracking-tight headline-font">Knowledge Check</h2>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Passing marks: <span className="font-semibold text-primary">{currentPassingScore}%</span>
+                    </p>
+                  </div>
                 </div>
                 
                 <div className="space-y-12">
                   {quizSubmitted[currentSection.id] ? (
-                    <div className="bg-primary rounded-xl p-8 text-center shadow-xl text-white relative overflow-hidden">
+                    <div className={`${quizSubmitted[currentSection.id].passed ? 'bg-primary' : 'bg-amber-600'} rounded-xl p-8 text-center shadow-xl text-white relative overflow-hidden`}>
                       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent)]"></div>
-                      <span className="material-symbols-outlined text-5xl mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>workspace_premium</span>
-                      <h3 className="text-2xl font-bold headline-font mb-2">Certification Granted</h3>
-                      <p className="text-blue-100/80 mb-6 font-body">Executive alignment verified with a score of <span className="font-bold text-white text-xl">{quizSubmitted[currentSection.id].score}%</span>.</p>
+                      <span className="material-symbols-outlined text-5xl mb-4" style={{ fontVariationSettings: "'FILL' 1" }}>
+                        {quizSubmitted[currentSection.id].passed ? 'workspace_premium' : 'refresh'}
+                      </span>
+                      <h3 className="text-2xl font-bold headline-font mb-2">
+                        {quizSubmitted[currentSection.id].passed ? 'Quiz Passed' : 'Retake Available'}
+                      </h3>
+                      <p className="text-blue-100/80 mb-3 font-body">
+                        Your score is <span className="font-bold text-white text-xl">{quizSubmitted[currentSection.id].score}%</span>.
+                      </p>
+                      <p className="text-white/80 mb-6 font-body">
+                        Passing marks: {quizSubmitted[currentSection.id].passingScore}%
+                      </p>
                       <div className="inline-flex items-center justify-center p-4 bg-white/10 rounded-xl backdrop-blur-md">
-                        <span className="font-bold text-xs uppercase tracking-widest">{quizSubmitted[currentSection.id].correctCount} of {quizSubmitted[currentSection.id].totalQuestions} Targets Met</span>
+                        <span className="font-bold text-xs uppercase tracking-widest">{quizSubmitted[currentSection.id].correctCount} of {quizSubmitted[currentSection.id].totalQuestions} Correct</span>
                       </div>
+                      {!quizSubmitted[currentSection.id].passed && (
+                        <div className="mt-6">
+                          <button
+                            onClick={() => handleRetakeQuiz(currentSection.id)}
+                            className="px-6 py-3 rounded-lg font-bold text-amber-700 bg-white hover:bg-amber-50 transition-colors text-sm uppercase tracking-widest"
+                          >
+                            Reattempt Quiz
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <>
@@ -290,7 +321,7 @@ export default function ModuleViewPage() {
               ) : activeTab === 'quiz' && !quizSubmitted[currentSection.id] ? (
                 <button 
                   onClick={() => handleQuizSubmit(currentSection.id)}
-                  disabled={Object.keys(selectedAnswers).length < currentSection.questions.length}
+                  disabled={answeredCurrentQuestions < currentSection.questions.length}
                   className="px-8 py-4 w-full md:w-auto rounded-lg font-bold text-white bg-gradient-to-br from-primary to-primary-container shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform text-sm uppercase tracking-widest cursor-pointer disabled:opacity-50 font-body focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
                   Submit Briefing
